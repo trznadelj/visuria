@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+    #dropzone {
+      border: 2px dashed #999;
+      border-radius: 8px;
+      padding: 40px;
+      text-align: center;
+      font-family: sans-serif;
+      font-size: 16px;
+      cursor: pointer;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    #dropzone.dragover {
+      border-color: #333;
+      background-color: #f2f2f2;
+    }
+
+    #file-list {
+      margin-top: 20px;
+      font-family: sans-serif;
+      font-size: 14px;
+    }
+
+    #file-list ul {
+      padding-left: 20px;
+    }
+
+  </style>
+  <!--    <link rel="stylesheet" href="ext/jquery-ui.min.css">-->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
+</head>
+<BODY>
+
+  <div id="dropzone">
+    Drop files here or click to select
+  </div>
+  <!-- Hidden file input as a fallback / click handler -->
+  <input id="file-input" type="file" multiple style="display:none" />
+  <div id="file-list"></div>
+
+  <div id="fs_table"></div>
+
+  <!--dialog windows -->
+  <div id="console" title="Console dialog"> 
+  <div id="console_output" style="border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; background-color: #f9f9f9; font-family: monospace; font-size: 12px; white-space: pre-wrap; word-wrap: break-word;"></div>
+  <!--- div id="console_output"></div>-->
+   <textarea id="console_text" cols="63" rows="6" style="resize:vertical ;"> </textarea> <BR>
+    <button id="console_eval">Eval</button>
+    <button id="console_clear">Clear</button>
+  </div>
+
+  <div id="debug" title="Debug dialog">
+   <p id="dump"></p>
+  </div>
+
+
+</BODY>
+
+  <!-- libs and external dependencies -->
+<!--  <script src="ext/jquery-3.7.1.min.js"></script>
+  <script src="ext/jquery-ui.min.js"></script>-->
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+
+  <!-- APP -->
+  <script src="js/app.js"></script>
+  <script src="js/app_debug.js"></script>
+  <script src="js/app_dragdrop.js"></script>
+  <script src="js/app_collection.js"></script>
+  <!-- dialogs -->
+  <script src="js/dialog_console.js"></script>
+
+  <!-- file formats -->
+  <script src="js/file_bin_tensor.js"></script>
+  <script src="js/file_csv.js"></script>
+  <script src="js/file_json.js"></script>
+
+  <!-- views -->
+  <script src="js/view_table.js"></script>
+
+  <!-- other -->
+  <script src="js/tools.js"></script>
+
+  <!-- ML experiment -->
+  <script src="js/ml_import.js"></script>
+  <script src="js/ml_tensor.js"></script>
+  <script src="js/ml_tokenizer.js"></script>
+  <script src="js/ml_inference.js"></script>
+
+  <script>
+    $( function() { 
+       $( "#console" ).dialog( { width: 620 } ); 
+       $( "#debug" ).dialog( { width: 450 } );
+
+       document.getElementById('console_eval').addEventListener('click', () => evaluateCode());
+       document.getElementById('console_clear').addEventListener('click', () => console_clear());
+       // CTRL-Enter on console_text to evaluate
+       document.getElementById('console_text').addEventListener('keydown', (event) => {
+         if (event.ctrlKey && event.key === 'Enter') {
+           evaluateCode();
+         }
+       });
+       app_init();
+    } );
+  </script>
+</HTML>
