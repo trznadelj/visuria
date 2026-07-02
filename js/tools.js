@@ -24,3 +24,13 @@ function v_minmax_amp( data ) {
     }
     return { min: min, max: max };
 }
+
+function v_ones(len, val = 1) 
+{
+    return Array(len).fill(val);
+}
+
+function v_zeros(len) 
+{
+    return Array(len).fill(0);
+}

@@ -39,7 +39,6 @@ function app_onFileLoad( file, content )
     D = app.current_data = fileLoader.onLoad( dataView );
     app_addToCollection( app.current_data, fileType, file.name );
 
-
     switch(fileType) 
     {
         case 'iq':
@@ -48,6 +47,7 @@ function app_onFileLoad( file, content )
             app_view_time_iq.onRender();
             app.view_time = app_view_time_iq;
             break;
+            
         case 'freqiq':
             app_view_freq_iq = new view_freq_iq(app.current_data);
             app_view_freq_iq.setConfig( { num_sc: 600 } );
@@ -55,11 +55,16 @@ function app_onFileLoad( file, content )
             app_view_freq_iq.onRender();
             app.view_freq = app_view_freq_iq;
             break;
+
         case 'csv':
             app_view_table = new view_table(app.current_data);
             document.getElementById("fs_table").innerHTML = app_view_csv.getTable();
             app.view_table = app_view_table;
             break;
+
+        case 'pcap':
+            break;
+
         default:
             debug("No view available for file type: " + fileType);
             break;
