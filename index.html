@@ -34,17 +34,11 @@
 </head>
 <BODY>
 
-  <div id="dropzone">
-    Drop files here or click to select
-  </div>
+  
   <!-- Hidden file input as a fallback / click handler -->
   <input id="file-input" type="file" multiple style="display:none" />
-  <div id="file-list"></div>
-
-  <div id="fs_table"></div>
-
   <!--dialog windows -->
-  <div id="console" title="Console dialog"> 
+  <div id="console_dialog" title="Console dialog"> 
   <div id="console_output" style="border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; background-color: #f9f9f9; font-family: monospace; font-size: 12px; white-space: pre-wrap; word-wrap: break-word;"></div>
   <!--- div id="console_output"></div>-->
    <textarea id="console_text" cols="63" rows="6" style="resize:vertical ;"> </textarea> <BR>
@@ -52,10 +46,26 @@
     <button id="console_clear">Clear</button>
   </div>
 
-  <div id="debug" title="Debug dialog">
-   <p id="dump"></p>
-  </div>
+  <div id="debug_dialog" title="Debug dialog"> <p id="dump"></p>  </div>
 
+  <table border="0" cellpadding="0" cellspacing="0" id="table_main" width=100%>
+   <tbody>
+   <tr bgcolor="#e0e0e0">
+    <td>
+  
+
+     <!-- Views -->
+     <div id="dropzone">     <center><B>Visuria</B><HR>Drop files here or click to select  </div>
+     <div id="fs_table"></div>
+     <div id="fs_main" hidden> <canvas id="fs_main_canvas" width="640px" height="480px"></canvas>  </div>
+    </td>
+    </tr>
+    <tr bgcolor="#606060"><td>
+      <input type="button" value="debug" id="open_debug_dialog" title="Debug dialog."> 
+      <input type="button" value="console" id="open_console_dialog" title="Console dialog.">
+    </td></tr>
+  </tbody>
+  </table>
 
 </BODY>
 
@@ -76,10 +86,13 @@
   <!-- file formats -->
   <script src="js/file_bin_tensor.js"></script>
   <script src="js/file_csv.js"></script>
+  <script src="js/file_iq.js"></script>
   <script src="js/file_json.js"></script>
 
   <!-- views -->
   <script src="js/view_table.js"></script>
+  <script src="js/view_time_iq.js"></script>
+  <script src="js/view_freq_iq.js"></script>
 
   <!-- other -->
   <script src="js/tools.js"></script>
@@ -92,8 +105,8 @@
 
   <script>
     $( function() { 
-       $( "#console" ).dialog( { width: 620 } ); 
-       $( "#debug" ).dialog( { width: 450 } );
+       $( "#console_dialog" ).dialog( { width: 620, autoOpen: false } ); 
+       $( "#debug_dialog" ).dialog( { width: 450, autoOpen: false } );
 
        document.getElementById('console_eval').addEventListener('click', () => evaluateCode());
        document.getElementById('console_clear').addEventListener('click', () => console_clear());
@@ -104,6 +117,29 @@
          }
        });
        app_init();
+      // onResizeHandler(); // initial resize
+      document.addEventListener('resize', onResizeHandler);
+
+      $('#open_debug_dialog').click(function()       { $( "#debug_dialog" ).dialog     ( "open" );    });
+      $('#open_console_dialog').click(function()     { $( "#console_dialog" ).dialog     ( "open" );    });
     } );
+
+    function onResizeHandler() {
+      const canvas = document.getElementById('fs_main_canvas');
+      const container = document.getElementById('fs_main');
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      canvas.width = width;
+      canvas.height = height;
+      if (app.view_freq_iq) {       
+        // app.view_freq_iq.resize(width, height);
+        app.view_freq_iq.draw();
+      }
+      alert('!');
+    }
+
+  canvas_size_x = document.getElementById('fs_main_canvas').width  =    window.innerWidth-20;
+  canvas_size_y = document.getElementById('fs_main_canvas').height =    window.innerHeight-40;
+
   </script>
 </HTML>

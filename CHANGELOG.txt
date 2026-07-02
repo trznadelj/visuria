@@ -1,0 +1,8 @@
+30.05.2026 
+ - Added resource grid view.
+ - Bottom toolbar with debug/console buttons
+ - support for 16bit iq in freq/time domains. No FFT yet. 
+ - Zoomable resource grid and time domain.
+
+15.04.2026
+ - csv view, with some focus on ML data visualisation.

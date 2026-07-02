@@ -45,7 +45,7 @@
       const files = Array.from(fileListObj); // convert FileList to Array
       if (!files.length) return;
 
-      // Example: show file names & sizes
+      /* Example: show file names & sizes
       let html = '<h3>Files:</h3><ul>';
       files.forEach(file => {
         html += `<li>${file.name} (${Math.round(file.size / 1024)} KB)</li>`;
@@ -55,6 +55,7 @@
 
       // If you want to upload files via fetch:
       // uploadFiles(files);
+      */
 
 
   files.forEach(file => {
