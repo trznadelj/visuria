@@ -6,7 +6,6 @@ function getFieldNames(objects) {
     return Array.from(fields);
 }
 
-
 function int16float( v )
 {
     if (v>32767) 
@@ -14,10 +13,9 @@ function int16float( v )
     return v/32768;
 }
 
-
 function v_minmax_amp( data ) {
     let min = 1e30, max = -1e30;
-    for( let k = 0; k < data.length; k++ ) {
+    for( let k = 0; k < data[0].length; k++ ) {
         let v = Math.sqrt( data[0][k] * data[0][k] + data[1][k] * data[1][k] );
         if( v < min ) min = v;
         if( v > max ) max = v;

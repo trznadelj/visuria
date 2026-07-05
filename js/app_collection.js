@@ -8,6 +8,11 @@ function app_registerFileLoader( onLoadFunction, fileTypeFunction, fileType )
 }
 
 
+function app_setTitle( title )
+{
+    document.title = title;
+}
+
 function app_guessFileTypeByName( name )
 {
     // iterate over registered file loaders   
@@ -35,6 +40,9 @@ function app_onFileLoad( file, content )
     }
 
     debug("File: "+ file.name +" " + fileType + " " + file.size + " bytes" );
+
+    app_setTitle( "Visuria - " + file.name );
+
     let fileLoader = app.fileLoaders[fileType];
     D = app.current_data = fileLoader.onLoad( dataView );
     app_addToCollection( app.current_data, fileType, file.name );
@@ -47,7 +55,7 @@ function app_onFileLoad( file, content )
             app_view_time_iq.onRender();
             app.view_time = app_view_time_iq;
             break;
-            
+
         case 'freqiq':
             app_view_freq_iq = new view_freq_iq(app.current_data);
             app_view_freq_iq.setConfig( { num_sc: 600 } );
