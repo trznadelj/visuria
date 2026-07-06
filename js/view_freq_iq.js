@@ -1,11 +1,14 @@
-class view_freq_iq {
-    constructor( data ) {
-        this.data = data;
-        this.x0 = 0;       // horizontal offset (pixels)
-        this.y0 = 0;       // vertical offset (inverted canvas Y)
+var colmap = [ 255,255,255, // zero
+               255,0,0,     // 1 - DMRS
+               0,255,0,     // 2 - PDCCH / PUCCH
+               0,0,255,     // 3 - PDSCH / PUSCH
+               255,255,0,   // 4 - PBCH (yellow)
+               0
+                 ];
 
-        this.sx = 1.0;     // horizontal zoom scale factor
-        this.sy = 1.0;     // vertical zoom scale factor
+class view_freq_iq extends view_zoom_pan {
+    constructor( data ) {
+        super( data );
 
         let t = v_minmax_amp( data );
         this.min_val = t.min;      // amplitude min (unused for now)
@@ -20,11 +23,12 @@ class view_freq_iq {
         this.ruler_left   = 0; // reserved left pixels
         this.ruler_right  = 0; // reserved right pixels
 
-        this.mouse_button = 0;  
-        this.mouse_x      = 0;
-        this.mouse_y      = 0;
         this.cache_bitmap = null; // cached bitmap for rendering
         this.cache_canvas = null; // cached canvas for rendering
+
+        this.chan_map = v_zeros( data[0].length );
+        this.flag_map = v_ones( data[0].length ); // 1:selected, 2: higlighted
+        this.idx2Rgb = this.idx2RgbAmp;
     };
 
     setConfig( config ) {
@@ -37,28 +41,53 @@ class view_freq_iq {
 
     setColorMode( mode ) {
         this.render_mode = mode;
+        switch( this.render_mode )
+        {
+	    default:
+            case 0: this.idx2Rgb = this.idx2RgbAmp; break; 
+            case 1: this.idx2Rgb = this.idx2RgbAngle; break;
+            case 2: this.idx2Rgb = this.idx2RgbChanAmp; break;
+            case 3: this.idx2Rgb = this.idx2RgbChanFull; break;
+            case 4: this.idx2Rgb = this.idx2RgbChanRegrid; break;
+        }
+        this.cache_bitmap = null;
     };
 
-    setContext( context ) {
-        this.context = context;
-        this.onResize();
-        this.context.canvas.addEventListener('mousemove', (event) => this.onMouseMove(event));
-        this.context.canvas.addEventListener('contextmenu', (event) => {
-            event.preventDefault();
-            this.onRightClick();
-        });
-        this.context.canvas.addEventListener('mousedown', (event) => this.onMouseButtonDown(event));
-        this.context.canvas.addEventListener('wheel', (event) => this.onMouseWheel(event));
-        this.context.canvas.addEventListener('mouseup', (event) => this.onMouseButtonUp(event));  
-    };
 
-    onResize() {
-        if (!this.context || !this.context.canvas) return;
-        this.width  = this.context.canvas.width;
-        this.height = this.context.canvas.height;
-    };
+    idx2RgbAngle( idx, chan )
+    {
+        // Implementation for converting index to color
+        let i = this.data[0][idx] || 0;
+        let q = this.data[1][idx] || 0;
+        let amp = (Math.atan2(i,q)+3.14159)/3.14159/2*255;
+        return [amp, amp, amp]; //todo.
+    }
 
-    idx2Rgb( idx )
+
+    idx2RgbChanAmp( idx, chan )
+    {
+        // Implementation for converting index to color
+        let i = this.data[0][idx] || 0;
+        let q = this.data[1][idx] || 0;
+        let amp = Math.sqrt(i*i + q*q)/this.max_val;
+        return [colmap[3*chan]*amp, colmap[3*chan+1]*amp, colmap[3*chan+2]*amp ];
+    }
+
+    idx2RgbChanFull( idx, chan )
+    {
+        // Implementation for converting index to color
+        let i = this.data[0][idx] || 0;
+        let q = this.data[1][idx] || 0;
+        let amp = Math.sqrt(i*i + q*q)/this.max_val;
+        return amp>0?[colmap[3*chan], colmap[3*chan+1], colmap[3*chan+2] ] : [0,0,0];
+    }
+
+    idx2RgbChanRegrid( idx, chan )
+    {
+        return [colmap[3*chan], colmap[3*chan+1], colmap[3*chan+2] ];
+    }
+
+    idx2RgbAmp( idx, chan )
     {
         // Implementation for converting index to color
         let i = this.data[0][idx] || 0;
@@ -66,16 +95,13 @@ class view_freq_iq {
         let amp = Math.sqrt(i*i + q*q)/this.max_val;
         let gray = amp*255;
         return [gray, gray, gray];
-    }
+    }        
 
-    idx2Color( idx )
+    idx2Color( idx, chan )
     {
        
-        let i = this.data[0][idx] || 0;
-        let q = this.data[1][idx] || 0;
-        let amp = Math.sqrt(i*i + q*q)/this.max_val;
-        let gray = Math.floor(amp*255);
-        return 'rgb(' + gray + ',' + gray + ',' + gray + ')';
+        let x = this.idx2Rgb( idx, chan);
+        return 'rgb(' + Math.floor(x[0]) + ',' + Math.floor(x[1]) + ',' + Math.floor(x[2]) + ')';
     }
 
     onRenderBitmap( )
@@ -108,7 +134,7 @@ class view_freq_iq {
                     this.cache_bitmap[offset]     = color[0];     // R
                     this.cache_bitmap[offset + 1] = color[1];     // G
                     this.cache_bitmap[offset + 2] = color[2];     // B
-                    this.cache_bitmap[offset + 3] = 255;     // A
+                    this.cache_bitmap[offset + 3] = 255;          // A
                 }
             }
             this.cache_canvas        = document.createElement('canvas');
@@ -120,7 +146,6 @@ class view_freq_iq {
         // Draw the image data to the canvas, scaling it to fit the current view
         this.context.drawImage(this.cache_canvas,  Math.round(x0), Math.round(y0), Math.round(this.num_symbols * sx), Math.round(this.num_sc * sy));
     }
-
     
 
     onRender( ) {
@@ -161,11 +186,11 @@ class view_freq_iq {
                 if (x < -sx) continue;
                 for (let sc = 0; sc < this.num_sc; sc++) {
                     let y = sc * sy + y0;
-                    if (y > this.height) continue;
+                    if (y > this.height) break;
                     if (y < -sy) continue;
-
                     let idx = sym * this.num_sc + sc;
-                    let color = this.idx2Color( idx );
+                    if (!this.flag_map[idx]) continue;
+                    let color = this.idx2Color( idx, this.chan_map[idx] );
 
                     ctx.fillStyle = color;
                     ctx.fillRect(x, y, sx, sy);
@@ -177,6 +202,11 @@ class view_freq_iq {
         }
         this.drawRulers();
     }
+
+    onRenderIq() 
+    {
+    }
+
 
     drawRulers() 
     {
@@ -220,6 +250,7 @@ class view_freq_iq {
         }
     }
 
+
     onRenderBox( x, y, sx, sy, idx )
     {
         let ctx = this.context;
@@ -250,71 +281,10 @@ class view_freq_iq {
         if ((sx<100)||(sy<100)) return;
 
         // text
-        
         let angle_deg = Math.round( Math.atan2(this.data[1][idx], this.data[0][idx]) * 180 / Math.PI );
         ctx.fillText( (idx%this.num_sc) + ' ' + angle_deg + '°', x+8,y+24);
         ctx.fillText( 'i: '+(this.data[0][idx].toFixed(4)), x+8,y+34);
         ctx.fillText( 'q: '+(this.data[1][idx].toFixed(4)), x+8,y+44);
-
     }
-
-
-    onMouseMove( event ) {
-        let old_mouse_x = this.mouse_x;
-        let old_mouse_y = this.mouse_y;
-        this.mouse_x = event.offsetX;
-        this.mouse_y = event.offsetY;
-        if (this.mouse_button == 1) {
-            let dx = this.mouse_x - old_mouse_x;
-            let dy = this.mouse_y - old_mouse_y;
-            this.x0 += dx;
-            this.y0 += dy;
-            this.onRender();
-        }
-    };
-
-    onMouseButtonDown( event ) {
-        this.mouse_button = 1;
-    };
-
-    onMouseButtonUp( event ) {
-        this.mouse_button = 0;
-    };
-
-
-    onMouseWheel( event ) {
-        let delta = event.deltaY;
-        let zoomFactor = 1.1;
-
-        // check if shift key is pressed, if so - no x zoom, only y zoom
-        let shiftPressed = event.shiftKey;
-        let altPressed = event.altKey;
-        let zoomFactorX = shiftPressed ? 1 : zoomFactor;
-        let zoomFactorY = altPressed ? 1 : zoomFactor;
-        
-        let old_sx = this.sx;
-        let old_sy = this.sy;
-
-        // correct the x0 and y0 to zoom around the mouse position
-        let mouseX = event.offsetX;
-        let mouseY = event.offsetY;        
-
-        if (delta < 0) {
-            this.sx *= zoomFactorX;
-            this.sy *= zoomFactorY;
-        } else {
-            this.sx /= zoomFactorX;
-            this.sy /= zoomFactorY;
-        }
-
-        this.x0 = mouseX - (mouseX - this.x0) * (this.sx / old_sx);
-        // for y take into account that y is inverted (0 at top, height at bottom)  
-        this.y0 = mouseY - (mouseY - this.y0) * (this.sy / old_sy);
-
-        this.onRender();
-    };
-
-    onRightClick() {
-    };
 
 };

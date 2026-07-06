@@ -7,7 +7,9 @@ function app_onFileLoad_iq16bit( view, json_description )
     var _time_q = [];
     var k       = 0;
 
-    for( var n=0; n<len; n+=4, k++)
+    let n_start = Number(document.getElementById('file_dialog__skip_bytes').value);
+
+    for( var n=n_start; n<len; n+=4, k++)
     {
       var _c_i=bytes[n  ]*256+bytes[n+1];
       var _c_q=bytes[n+2]*256+bytes[n+3];

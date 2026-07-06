@@ -58,7 +58,7 @@ function app_onFileLoad( file, content )
 
         case 'freqiq':
             app_view_freq_iq = new view_freq_iq(app.current_data);
-            app_view_freq_iq.setConfig( { num_sc: 600 } );
+            app_view_freq_iq.setConfig( { num_sc: Number(document.getElementById('file_dialog__num_sc').value) } );
             app_view_freq_iq.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
             app_view_freq_iq.onRender();
             app.view_freq = app_view_freq_iq;

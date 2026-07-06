@@ -1,3 +1,9 @@
+06.07.2026
+ - some coloring options for regrid
+ - skip bytes when loading iq
+ - num_sc in file dialog
+ - first file dialog sketch
+
 05.07.2026
  - freq iq view fixes - inside I/Q boxes, left ruler
 

@@ -52,11 +52,26 @@
 
   <div id="debug_dialog" title="Debug dialog"> <p id="dump"></p>  </div>
 
-  <div id="file_dialog" title="File dialog" hidden>  </div>
+  <div id="file_dialog" title="File dialog"> 
+     Name: <p>?</p><HR>
+     Type: 
+      <select name="file_type" id="file_type">
+         <option value="iq">16 bit IQ - frequency</option> 
+         <option value="iq_time">16 bit IQ - time</option>
+         <option value="csv">CSV</option>
+         <option value="pcap">pcap</option>
+      </select><hr>
+      Skip bytes: <input type="text" value="0" id="file_dialog__skip_bytes"> <br>
+      Num sc: <input type="text" value="624" id="file_dialog__num_sc">
+      <hr>
+      <input type="button" value="Load">     
+  </div>
+  <div id="select_dialog" title="Select dialog" hidden>  </div>
+  <div id="help_dialog" title="Help dialog" hidden>  </div>
 
-  <table border="0" cellpadding="0" cellspacing="0" id="table_main" width=100%>
+  <table border="0" cellpadding="0" cellspacing="0" id="table_main" width=100% height=100%>
    <tbody>
-   <tr bgcolor="#e0e0e0">
+   <tr bgcolor="#e0e0e0" height=100%>
     <td>
   
 
@@ -69,8 +84,19 @@
     </td>
     </tr>
     <tr bgcolor="#606060"><td>
-      <input type="button" value="debug" id="open_debug_dialog" title="Debug dialog."> 
+      <input type="button" value="file" id="open_file_dialog" title="File dialog.">
+      <input type="button" value="select" id="open_select_dialog" title="Select dialog.">
+      <input type="button" value="debug" id="open_debug_dialog" title="Debug dialog.">
       <input type="button" value="console" id="open_console_dialog" title="Console dialog.">
+      <input type="button" value="help" id="open_help_dialog" title="Help dialog.">
+      Color mode:
+      <select name="render_mode" id="render_mode" onclick="app_reload_color()">
+         <option value="0">amplitude</option> 
+         <option value="1">angle</option>
+         <option value="2">amplitude + chan</option>
+         <option value="3">Channel full</option>
+         <option value="4">Resource grid</option>
+      </select>
     </td></tr>
   </tbody>
   </table>
@@ -98,6 +124,7 @@
   <script src="js/file_json.js"></script>
 
   <!-- views -->
+  <script src="js/view_zoom_pan.js"></script>
   <script src="js/view_table.js"></script>
   <script src="js/view_time_iq.js"></script>
   <script src="js/view_freq_iq.js"></script>
@@ -106,13 +133,17 @@
   <script src="js/tools.js"></script>
 
   <!-- ML experiment -->
-  <script src="js/ml_import.js"></script>
-  <script src="js/ml_tensor.js"></script>
-  <script src="js/ml_tokenizer.js"></script>
-  <script src="js/ml_inference.js"></script>
+  <script src="js/tech/ml/ml_import.js"></script>
+  <script src="js/tech/ml/ml_tensor.js"></script>
+  <script src="js/tech/ml/ml_tokenizer.js"></script>
+  <script src="js/tech/ml/ml_inference.js"></script>
+
+  <!-- 5G parameters -->
+  <script src="js/tech/5g/5g.js"></script>
 
   <script>
     $( function() { 
+       $( "#file_dialog" ).dialog( { width: 450, autoOpen: false } );
        $( "#console_dialog" ).dialog( { width: 620, autoOpen: false } ); 
        $( "#debug_dialog" ).dialog( { width: 450, autoOpen: false } );
 
@@ -128,8 +159,10 @@
       // onResizeHandler(); // initial resize
       document.addEventListener('resize', onResizeHandler);
 
-      $('#open_debug_dialog').click(function()       { $( "#debug_dialog" ).dialog     ( "open" );    });
-      $('#open_console_dialog').click(function()     { $( "#console_dialog" ).dialog     ( "open" );    });
+      $('#open_debug_dialog').click(function()       { $( "#debug_dialog"  ).dialog     ( "open" );    });
+      $('#open_console_dialog').click(function()     { $( "#console_dialog").dialog     ( "open" );    });
+      $('#open_file_dialog').click(function()        { $( "#file_dialog"   ).dialog     ( "open" );    });
+      $('#open_select_dialog').click(function()      { $( "#select_dialog" ).dialog     ( "open" );    });
     } );
 
     function onResizeHandler() {
@@ -148,6 +181,14 @@
 
   canvas_size_x = document.getElementById('fs_main_canvas').width  =    window.innerWidth-20;
   canvas_size_y = document.getElementById('fs_main_canvas').height =    window.innerHeight-40;
+
+  function app_reload_color() 
+  {
+      var mode = Number( document.getElementById('render_mode').options[document.getElementById('render_mode').selectedIndex].value );
+      debug("Color mode: "+mode );
+
+      app_view_freq_iq.setColorMode( mode );
+  }
 
   </script>
 </HTML>
