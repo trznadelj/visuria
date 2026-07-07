@@ -62,8 +62,8 @@ class view_zoom_pan {
         // alt:   constrain zoom to X axis only
         let shiftPressed = event.shiftKey;
         let altPressed   = event.altKey;
-        let zoomFactorX  = shiftPressed ? 1 : zoomFactor;
-        let zoomFactorY  = altPressed   ? 1 : zoomFactor;
+        let zoomFactorY  = shiftPressed ? 1 : zoomFactor;
+        let zoomFactorX  = altPressed   ? 1 : zoomFactor;
 
         let old_sx = this.sx;
         let old_sy = this.sy;

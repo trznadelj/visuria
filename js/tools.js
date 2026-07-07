@@ -32,3 +32,12 @@ function v_zeros(len)
 {
     return Array(len).fill(0);
 }
+
+function v_slice(v, start, end) 
+{
+    if (v.length==2) // iq vector
+    {
+        return [ v[0].slice(start, end), v[1].slice(start, end) ];
+    }
+    return v.slice(start, end);
+}

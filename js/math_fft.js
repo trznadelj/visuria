@@ -58,14 +58,14 @@ function ct_fft([re, im], is_ifft)
         }
     }
 
-    // inverse: divide by length
-    if (is_ifft) {
-        const invN = 1 / M;
+    // Constant power
+//    if (is_ifft) {
+        const invN = 1 / Math.sqrt(M);
         for (let i = 0; i < M; i++) {
             reOut[i] *= invN;
             imOut[i] *= invN;
         }
-    }
+  //  }
 
     return [reOut, imOut];
 }

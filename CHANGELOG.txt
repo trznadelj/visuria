@@ -1,3 +1,7 @@
+07.07.2026
+ - CP map for time graph, more parameters in file dialog
+ - time_2_freq conversion, 2 graphs
+
 06.07.2026
  - some coloring options for regrid
  - skip bytes when loading iq

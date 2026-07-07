@@ -61,8 +61,11 @@
          <option value="csv">CSV</option>
          <option value="pcap">pcap</option>
       </select><hr>
-      Skip bytes: <input type="text" value="0" id="file_dialog__skip_bytes"> <br>
-      Num sc: <input type="text" value="624" id="file_dialog__num_sc">
+      Skip bytes: <input type="text" id="file_dialog__skip_bytes" placeholder="0"> <br>
+      Num sc:     <input type="text" id="file_dialog__num_sc" placeholder="600"> <br>
+      FFT size:   <input type="text" id="file_dialog__fft_size" placeholder="1024"> <br>
+      NR_u:       <input type="text" id="file_dialog__NR_u" placeholder="1"> <br>
+      CPMap:      <input type="text" id="file_dialog__cp_map" placeholder="[80,72,72,72,72,72,72]"> <br>
       <hr>
       <input type="button" value="Load">     
   </div>
@@ -89,6 +92,11 @@
       <input type="button" value="debug" id="open_debug_dialog" title="Debug dialog.">
       <input type="button" value="console" id="open_console_dialog" title="Console dialog.">
       <input type="button" value="help" id="open_help_dialog" title="Help dialog.">
+      &nbsp; 
+      Views:
+      <input type="button" value="time" onclick="app_setView('time')">
+      <input type="button" value="freq" onclick="app_setView('freq')">  
+      &nbsp; 
       Color mode:
       <select name="render_mode" id="render_mode" onclick="app_reload_color()">
          <option value="0">amplitude</option> 
@@ -122,6 +130,8 @@
   <script src="js/file_csv.js"></script>
   <script src="js/file_iq.js"></script>
   <script src="js/file_json.js"></script>
+
+  <script src="js/math_fft.js"></script>
 
   <!-- views -->
   <script src="js/view_zoom_pan.js"></script>
