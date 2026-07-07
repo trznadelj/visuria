@@ -174,6 +174,11 @@ class view_freq_iq extends view_zoom_pan {
         ctx.fillStyle   = 'black';
         ctx.fillRect     ( 0, 0, this.width , this.height );
 
+        let w_x = Math.floor( sx + 0.999 );
+        if (w_x>30) w_x=Math.floor( w_x*0.96 );
+        let w_y = Math.floor( sy + 0.999 );
+        if (w_y>30) w_y=Math.floor( w_y*0.96 );
+
         if (sx*sy <20)
         {
             this.onRenderBitmap();            
@@ -193,7 +198,7 @@ class view_freq_iq extends view_zoom_pan {
                     let color = this.idx2Color( idx, this.chan_map[idx] );
 
                     ctx.fillStyle = color;
-                    ctx.fillRect(x, y, sx, sy);
+                    ctx.fillRect(x, y, w_x, w_y);
 
                     if ((sx > 50) && (sy > 50) && (this.onRenderBox))
                         this.onRenderBox(x, y, sx, sy, idx);
