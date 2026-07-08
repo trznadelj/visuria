@@ -29,6 +29,7 @@ class view_freq_iq extends view_zoom_pan {
         this.chan_map = v_zeros( data[0].length );
         this.flag_map = v_ones( data[0].length ); // 1:selected, 2: higlighted
         this.idx2Rgb = this.idx2RgbAmp;
+        this.onRender = this.onRenderRegrid;
     };
 
     setConfig( config ) {
@@ -49,9 +50,26 @@ class view_freq_iq extends view_zoom_pan {
             case 2: this.idx2Rgb = this.idx2RgbChanAmp; break;
             case 3: this.idx2Rgb = this.idx2RgbChanFull; break;
             case 4: this.idx2Rgb = this.idx2RgbChanRegrid; break;
+            case 5: this.idx2Rgb = this.idx2RgbWhite; break;
         }
         this.cache_bitmap = null;
     };
+
+    setRenderType( type ) {
+        switch( type )
+        {
+            default:
+            case 'regrid': this.onRender = this.onRenderRegrid; break;
+            case 'iq': this.onRender = this.onRenderIq; break;
+        }
+    }
+
+    idx2RgbWhite(  )
+    {
+        return [255,255,255]; //todo.
+    }
+
+
 
 
     idx2RgbAngle( idx, chan )
@@ -59,8 +77,14 @@ class view_freq_iq extends view_zoom_pan {
         // Implementation for converting index to color
         let i = this.data[0][idx] || 0;
         let q = this.data[1][idx] || 0;
-        let amp = (Math.atan2(i,q)+3.14159)/3.14159/2*255;
-        return [amp, amp, amp]; //todo.
+        let angle = (Math.atan2(i,q)+3.14159)/3.14159/2*100;
+        let amp = Math.sqrt(i*i + q*q)/this.max_val*100;
+
+        let h = angle;
+        let s = 100;
+        let v = amp;
+        
+        return hsvToRgb(h,s,v);
     }
 
 
@@ -148,7 +172,7 @@ class view_freq_iq extends view_zoom_pan {
     }
     
 
-    onRender( ) {
+    onRenderRegrid( ) {
         if (!this.context || !this.width) return;      
         if( this.num_symbols <= 0 || this.num_sc <= 0 ) return;
         let ctx = this.context;
@@ -208,8 +232,43 @@ class view_freq_iq extends view_zoom_pan {
         this.drawRulers();
     }
 
+    
     onRenderIq() 
     {
+        if (!this.context || !this.width) return;      
+        if( this.num_symbols <= 0 || this.num_sc <= 0 ) return;
+        let ctx = this.context;
+
+        // Exit early if config not ready yet.
+        let vi    = Array.isArray(this.data) ? (this.data[0]||[]) : [];
+        let vq    = Array.isArray(this.data) ? (this.data[1]||[]) : [];
+
+        const x0 = this.x0+this.width/2, y0 = this.y0+this.height/2;
+        const sx = this.sx * this.width/2/this.max_val;//n;
+        const sy = this.sy * this.height/2/this.max_val;
+        const w_x= 2; 
+        const w_y= 2;
+
+        // Clear background — "only clean data for now"
+        ctx.fillStyle   = 'black';
+        ctx.fillRect     ( 0, 0, this.width , this.height );
+
+
+        for (let sym = 0; sym < this.num_symbols; sym++) {
+            for (let sc = 0; sc < this.num_sc; sc++) {
+                let idx = sym * this.num_sc + sc;
+
+                let x = vi[idx] * sx + x0;
+                let y = vq[idx] * sy + y0;
+                
+                if (!this.flag_map[idx]) continue;
+
+                let color = this.idx2Color( idx, this.chan_map[idx] );
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, w_x, w_y);                
+            }
+        }
+        
     }
 
 

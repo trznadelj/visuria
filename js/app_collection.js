@@ -35,8 +35,15 @@ function app_setView( view )
             app.view_time.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
             app.view_time.onRender();
             break;
+        case 'iq':
+            app.view_freq.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
+            app.view_freq.setRenderType('iq');
+            app.view_freq.onRender();            
+            break;
+
         case 'freq':
             app.view_freq.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
+            app.view_freq.setRenderType('regrid');
             app.view_freq.onRender();
             break;
     }

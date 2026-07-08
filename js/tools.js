@@ -41,3 +41,20 @@ function v_slice(v, start, end)
     }
     return v.slice(start, end);
 }
+
+function hsvToRgb(h, s, v) {
+  // Przeliczenie nasycenia i jasności na ułamki (0-1)
+  s /= 100;
+  v /= 100;
+
+  // Główny wzór matematyczny
+  let k = (n) => (n + h / 60) % 6;
+  let f = (n) => v - v * s * Math.max(0, Math.min(k(n), 4 - k(n), 1));
+
+  // Zaokrąglenie do liczb całkowitych z przedziału 0-255
+  return [
+    Math.round(255 * f(5)), // Czerwony (R)
+    Math.round(255 * f(3)), // Zielony (G)
+    Math.round(255 * f(1))  // Niebieski (B)
+  ];
+}

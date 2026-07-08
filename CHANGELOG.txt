@@ -1,3 +1,7 @@
+07.08.2026
+ - IQ view
+ - speed up time view
+
 07.07.2026
  - CP map for time graph, more parameters in file dialog
  - time_2_freq conversion, 2 graphs
