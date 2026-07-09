@@ -9,6 +9,8 @@ function app_onFileLoad_pcap( view, json_description )
         debug("Error parsing pcap file: " + e.message);
         return;
     }   
+    debug("Loaded "+pr.packets.length+" packets.");
+
     return { packets: pr.packets, timing: pr.timing }; 
 }
 

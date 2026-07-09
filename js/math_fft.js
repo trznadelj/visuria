@@ -7,7 +7,10 @@ function fft([re, im], is_ifft)
     if ((N & (N - 1)) === 0) {
         return ct_fft([re, im], is_ifft);
     } else {
-        return naive_fft([re, im], is_ifft);
+        if (N==1536)
+            return fft1536( [re,im], is_ifft);
+        else
+            return naive_fft([re, im], is_ifft);
     }
 }
 
@@ -66,6 +69,51 @@ function ct_fft([re, im], is_ifft)
             imOut[i] *= invN;
         }
   //  }
+
+    return [reOut, imOut];
+}
+
+function fft1536([re, im], is_ifft)
+// fft1536 — specialized FFT for length 1536 (2^9 * 3).
+{
+    const N = re.length;
+    if (N !== 1536) throw new Error("fft1536: input length must be 1536");
+
+    // Split into 3 segments of length 512
+    const segLen = 512;
+    const segs = [[], [], []];
+    for (let i = 0; i < N; i++) {
+        segs[i % 3].push([re[i], im[i]]);
+    }
+
+    // Perform FFT on each segment
+    const fftSegs = segs.map(seg => ct_fft(seg, is_ifft));
+
+    // Combine the results using the Cooley-Tukey method
+    const reOut = new Array(N).fill(0);
+    const imOut = new Array(N).fill(0);
+    for (let k = 0; k < segLen; k++) {
+        for (let j = 0; j < 3; j++) {
+            const angle = (is_ifft ? 1 : -1) * 2 * Math.PI * j * k / N;
+            const wRe = Math.cos(angle);
+            const wIm = Math.sin(angle);
+
+            const idx = k + j * segLen;
+            const [segRe, segIm] = fftSegs[j];
+
+            reOut[idx] = segRe[k] * wRe - segIm[k] * wIm;
+            imOut[idx] = segRe[k] * wIm + segIm[k] * wRe;
+        }
+    }
+
+    // Constant power
+    if (is_ifft) {
+        const invN = 1 / Math.sqrt(N);
+        for (let i = 0; i < N; i++) {
+            reOut[i] *= invN;
+            imOut[i] *= invN;
+        }
+    }
 
     return [reOut, imOut];
 }
