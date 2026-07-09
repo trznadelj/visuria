@@ -29,11 +29,21 @@
       padding-left: 20px;
     }
 
+
+        /* 1. Reset margins and make HTML/Body fill the viewport */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
   </style>
   <!--    <link rel="stylesheet" href="ext/jquery-ui.min.css">-->
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
 </head>
-<BODY>
+<BODY style="margin: 0">
 
   
   <!-- Hidden file input as a fallback / click handler -->
@@ -61,11 +71,7 @@
          <option value="csv">CSV</option>
          <option value="pcap">pcap</option>
       </select><hr>
-      Skip bytes: <input type="text" id="file_dialog__skip_bytes" placeholder="0"> <br>
-      Num sc:     <input type="text" id="file_dialog__num_sc" placeholder="600"> <br>
-      FFT size:   <input type="text" id="file_dialog__fft_size" placeholder="1024"> <br>
-      NR_u:       <input type="text" id="file_dialog__NR_u" placeholder="1"> <br>
-      CPMap:      <input type="text" id="file_dialog__cp_map" placeholder="[80,72,72,72,72,72,72]"> <br>
+      <p id="file_dialog__cfg_p"></p>
       <hr>
       <input type="button" value="Load">     
   </div>
@@ -79,10 +85,8 @@
   
 
      <!-- Views -->
-     <div id="dropzone">     <center><B>Visuria</B><br><img src="images/visuria.png" width="96px"><HR>Drop files here or click to select  
-      
-    </div>
-     <div id="fs_table"></div>
+     <div id="dropzone">     <center><B>Visuria</B><br><img src="images/visuria.png" width="96px"><HR>Drop files here or click to select    </div>
+     <div id="fs_table"> </div>
      <div id="fs_main" hidden> <canvas id="fs_main_canvas" width="640px" height="480px"></canvas>  </div>
     </td>
     </tr>
@@ -132,6 +136,7 @@
   <script src="js/file_csv.js"></script>
   <script src="js/file_iq.js"></script>
   <script src="js/file_json.js"></script>
+  <script src="js/file_pcap.js"></script>
 
   <script src="js/math_fft.js"></script>
 
@@ -175,6 +180,10 @@
       $('#open_console_dialog').click(function()     { $( "#console_dialog").dialog     ( "open" );    });
       $('#open_file_dialog').click(function()        { $( "#file_dialog"   ).dialog     ( "open" );    });
       $('#open_select_dialog').click(function()      { $( "#select_dialog" ).dialog     ( "open" );    });
+
+      document.getElementById('file_dialog__cfg_p').innerHTML = genCfgTable('file_dialog',['skip_bytes','num_sc','fft_size','NR_u','cp_map'], [0,600,1024,1,[80,72,72,72,72,72,72]]);
+  
+
     } );
 
     function onResizeHandler() {

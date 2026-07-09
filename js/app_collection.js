@@ -63,6 +63,29 @@ function time_to_freq( time_data, sym_starts, fft_size, num_sc )
     return f;
 }
 
+function app_packet_dissector( view_pcap )
+{
+    let packets = view_pcap.packets;
+    let ret = [];
+
+    for( let i = 0; i < packets.length; i++ )
+    {
+        let pkt = packets[i];
+        let ts = view_pcap.timing[i];
+
+        let pkt_info = {
+            index: i,
+            timestamp: ts,
+            eth_src: pkt[6].toString(16).padStart(2, '0') + ':' + pkt[7].toString(16).padStart(2, '0') + ':' + pkt[8].toString(16).padStart(2, '0') + ':' + pkt[9].toString(16).padStart(2, '0') + ':' + pkt[10].toString(16).padStart(2, '0') + ':' + pkt[11].toString(16).padStart(2, '0'),
+            eth_dst: pkt[0].toString(16).padStart(2, '0') + ':' + pkt[1].toString(16).padStart(2, '0') + ':' + pkt[2].toString(16).padStart(2, '0') + ':' + pkt[3].toString(16).padStart(2, '0') + ':' + pkt[4].toString(16).padStart(2, '0') + ':' + pkt[5].toString(16).padStart(2, '0'),
+            eth_type: (pkt[12] << 8 | pkt[13]).toString(16).padStart(4, '0')
+        };
+
+        ret.push(pkt_info);
+    }
+    return ret;
+}
+
 function app_onFileLoad( file, content )
 {
     const dataView = new DataView(content); 
@@ -123,6 +146,10 @@ function app_onFileLoad( file, content )
             break;
 
         case 'pcap':
+            app.pcap = app.current_data;            
+            app_view_table = new view_table( app_packet_dissector( app.current_data ) );
+            document.getElementById("fs_table").innerHTML = app_view_table.getTable();
+            app.view_table = app_view_table;
             break;
 
         default:
