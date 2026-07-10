@@ -42,6 +42,14 @@ function v_slice(v, start, end)
     return v.slice(start, end);
 }
 
+function v_set( v, value, start, end )
+// set values inside v[start...end-1] = v;
+{
+    v.fill( value, start, end );
+
+    return v;
+}
+
 function hsvToRgb(h, s, v) {
   s /= 100;
   v /= 100;

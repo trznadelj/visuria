@@ -7,7 +7,7 @@ function evaluateCode()
 
 // get first ilne of code to use as a label
     const firstLine = code.split('\n')[0].trim();
-    outputDiv.innerHTML += '<BR><span style="color: blue;">&gt;&gt; ' + firstLine.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span><br>';
+    outputDiv.insertAdjacentHTML('beforeend', '<BR><span style="color: blue;">&gt;&gt; ' + firstLine.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span><br>');
 
     try {
         let result = (eval(code));
@@ -47,19 +47,42 @@ function evaluateCode()
         const lines = result_as_text.split('<br>');
         if (lines.length > 30) {
             const first30 = lines.slice(0, 30).join('<br>');
-            outputDiv.innerHTML += first30 + '<br>... (output truncated, total ' + lines.length + ' lines)';
+            outputDiv.insertAdjacentHTML('beforeend', first30 + '<br>... (output truncated, total ' + lines.length + ' lines)');
             
         }
         else
-          outputDiv.innerHTML += result_as_text;
+          outputDiv.insertAdjacentHTML('beforeend', result_as_text);
     }
     catch(e)
     {
-        outputDiv.innerHTML += "Error: " + e.message;
+        outputDiv.insertAdjacentHTML('beforeend', "Error: " + e.message);
     }
 }
 
+let _console_canvas_counter = 0;
+
 function console_clear()
 {
+    _console_canvas_counter = 0;
     document.getElementById('console_output').innerHTML="";
+}
+
+function console_add( txt )
+{
+    // This uses innerHTML += which can destroy previously-added DOM nodes.
+    // Prefer insertAdjacentHTML for appending DOM-safe content.
+    document.getElementById('console_output').insertAdjacentHTML('beforeend', txt);
+}
+
+// Add a canvas element to the console output.  Returns the canvas.
+// Width/height default to 640x280.
+function console_add_canvas( w, h )
+{
+    w = w || 640;
+    h = h || 280;
+    const id = 'console_canvas_' + (_console_canvas_counter++);
+    const html = '<canvas id="' + id + '" width="' + w + '" height="' + h
+        + '" style="width:' + w + 'px;height:' + h + 'px;border:1px solid #ccc;margin:4px 0;display:block;"></canvas>';
+    document.getElementById('console_output').insertAdjacentHTML('beforeend', html);
+    return document.getElementById(id);
 }
