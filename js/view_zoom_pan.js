@@ -19,7 +19,7 @@ class view_zoom_pan {
         this.context.canvas.addEventListener('mousemove', (event) => this.onMouseMove(event));
         this.context.canvas.addEventListener('contextmenu', (event) => {
             event.preventDefault();
-            this.onRightClick();
+            this.onRightClick(event);
         });
         this.context.canvas.addEventListener('mousedown', (event) => this.onMouseButtonDown(event));
         this.context.canvas.addEventListener('wheel', (event) => this.onMouseWheel(event));
@@ -87,6 +87,12 @@ class view_zoom_pan {
         this.onRender();
     };
 
-    onRightClick() {
+    onRightClick( event ) {
+        var floating  =document.getElementById('floating_dialog');
+        var ex = event.offsetX;
+        var ey = event.offsetY;
+        floating.style.top = ex;
+        floating.style.left= ey;
+        $('#floating_dialog').dialog('open');
     };
 };

@@ -42,6 +42,27 @@ function v_slice(v, start, end)
     return v.slice(start, end);
 }
 
+function v_diff( v )
+{
+    for( let i=0; i<v.length-1; i++)
+        v[i] = v[i+1]-v[i];
+    v[v.length-1]=0;
+    return v;
+}
+
+function v_sort(v)
+{
+    return v.sort((a, b) => a - b);
+}
+
+function v_uniq(v)
+{
+    var r=[];
+    for( var i=0; i<v.length-1; i++)
+        if (v[i]!=v[i+1]) r.push(v[i]);
+    return r;
+}
+
 function v_set( v, value, start, end )
 // set values inside v[start...end-1] = v;
 {

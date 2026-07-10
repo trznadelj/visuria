@@ -310,7 +310,10 @@ class view_freq_iq extends view_zoom_pan {
             let x = (sym+1) * sx + this.x0;
             if (x < 0) continue;
             if (x > this.width) break;
+            if ((sx<10) && (sym%14)) continue;
             ctx.fillText( sym%14, (x0+x)/2, this.height-12 );
+            if (!(sym%14))
+                ctx.fillText( sym/14, (x0+x)/2, this.height-2 );
         }
     }
 

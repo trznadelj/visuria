@@ -61,6 +61,7 @@
   </div>
 
   <div id="debug_dialog" title="Debug dialog"> <p id="dump"></p>  </div>
+  <div id="floating_dialog" title="Floating dialog"><p id="floating_p">123</p></div>
 
   <div id="file_dialog" title="File dialog"> 
      Name: <p>?</p><HR>
@@ -88,6 +89,10 @@
      <div id="dropzone">     <center><B>Visuria</B><br><img src="images/visuria.png" width="96px"><HR>Drop files here or click to select    </div>
      <div id="fs_table"> </div>
      <div id="fs_main" hidden> <canvas id="fs_main_canvas" width="640px" height="480px"></canvas>  </div>
+     <div id="modal" title="Modal dialog" hidden><p id="modal_p"></p></div>
+
+
+
     </td>
     </tr>
     <tr bgcolor="#606060"><td>
@@ -165,6 +170,7 @@
        $( "#file_dialog" ).dialog( { width: 450, autoOpen: false } );
        $( "#console_dialog" ).dialog( { width: 620, autoOpen: false } ); 
        $( "#debug_dialog" ).dialog( { width: 450, autoOpen: false } );
+       $( "#floating_dialog" ).dialog( { width: 300, autoOpen: false } );
 
        document.getElementById('console_eval').addEventListener('click', () => evaluateCode());
        document.getElementById('console_clear').addEventListener('click', () => console_clear());

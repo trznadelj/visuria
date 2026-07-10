@@ -99,7 +99,7 @@ class view_time_iq extends view_zoom_pan {
         ctx.fillStyle = 'rgba(0, 148, 0, 0.2)';
         ctx.strokeStyle = 'white';
 
-        if (cx>0.001)
+        if (sx>0.001)
         for (let i = 0; i < this.sym_starts.length; i++) {
             const sample = this.sym_starts[i];
             const x = this.x0 + sample * sx;
@@ -108,7 +108,18 @@ class view_time_iq extends view_zoom_pan {
             if (x > this.width) break;
 
             if ((i & 1) == 0) {
+                let cp_width = this.x0 + this.sym_starts[i + 1] * sx - x;
+                ctx.fillStyle = 'rgba(0, 148, 0, 0.2)';
                 ctx.fillRect(x, 0, this.x0 + this.sym_starts[i + 1] * sx - x, y);
+                if (cp_width>80)
+                {
+                    
+                    ctx.fillStyle = 'rgb(40,255,40)';
+                    ctx.fillText( "cyclic prefix", x+15, 15  );
+                    ctx.fillText( "no: "+(i/2), x+15, 25  );
+                    ctx.fillText( "sample: "+this.sym_starts[i], x+15, 35  );
+                    ctx.fillText( "length: "+( this.sym_starts[i+1] - this.sym_starts[i] ), x+15, 45  );
+                }
             }
             ctx.beginPath();
             ctx.moveTo(x, 30 + y - (i & 1 ? 15 : 30));
