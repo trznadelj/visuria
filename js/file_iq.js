@@ -52,5 +52,5 @@ function app_onFileType_iq16bit_freq(name) {
     return "unknown";
 }
 
-app_registerFileLoader(app_onFileLoad_iq16bit, app_onFileType_iq16bit, "iq");
-app_registerFileLoader(app_onFileLoad_iq16bit, app_onFileType_iq16bit_freq, "freqiq");
+app_registerFileLoader(app_onFileLoad_iq16bit, app_onFileType_iq16bit, "iq", "16 bit IQ - time");
+app_registerFileLoader(app_onFileLoad_iq16bit, app_onFileType_iq16bit_freq, "freqiq", "16 bit IQ - frequency");

@@ -15,4 +15,4 @@ function app_onFileType_json( name )
     return "unknown";
 }
 
-app_registerFileLoader( app_onFileLoad_json, app_onFileType_json, "json" );
+app_registerFileLoader( app_onFileLoad_json, app_onFileType_json, "json", "json" );

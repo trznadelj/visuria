@@ -16,6 +16,7 @@ class view_zoom_pan {
     setContext( context ) {
         this.context = context;
         this.onResize();
+/*        
         this.context.canvas.addEventListener('mousemove', (event) => this.onMouseMove(event));
         this.context.canvas.addEventListener('contextmenu', (event) => {
             event.preventDefault();
@@ -23,7 +24,7 @@ class view_zoom_pan {
         });
         this.context.canvas.addEventListener('mousedown', (event) => this.onMouseButtonDown(event));
         this.context.canvas.addEventListener('wheel', (event) => this.onMouseWheel(event));
-        this.context.canvas.addEventListener('mouseup', (event) => this.onMouseButtonUp(event));
+        this.context.canvas.addEventListener('mouseup', (event) => this.onMouseButtonUp(event));*/
     };
 
     onResize() {
@@ -95,4 +96,9 @@ class view_zoom_pan {
         floating.style.left= ey;
         $('#floating_dialog').dialog('open');
     };
+
+    cancelZoom() {
+        this.sx=this.sy=1;
+        this.x0=this.y0=0;
+    }
 };

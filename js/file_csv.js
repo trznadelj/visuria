@@ -24,4 +24,4 @@ function app_onFileType_csv( name )
     return "unknown";
 }
 
-app_registerFileLoader( app_onFileLoad_csv, app_onFileType_csv, "csv" );
+app_registerFileLoader( app_onFileLoad_csv, app_onFileType_csv, "csv", "CSV" );

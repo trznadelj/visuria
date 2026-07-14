@@ -6,6 +6,8 @@ var colmap = [ 255,255,255, // zero
                0
                  ];
 
+const colmap_names = ['?', 'DMRS', 'PDCCH', 'PDSCH', 'PBCH'];
+
 class view_freq_iq extends view_zoom_pan {
     constructor( data ) {
         super( data );
@@ -70,8 +72,6 @@ class view_freq_iq extends view_zoom_pan {
     }
 
 
-
-
     idx2RgbAngle( idx, chan )
     {
         // Implementation for converting index to color
@@ -103,7 +103,7 @@ class view_freq_iq extends view_zoom_pan {
         let i = this.data[0][idx] || 0;
         let q = this.data[1][idx] || 0;
         let amp = Math.sqrt(i*i + q*q)/this.max_val;
-        return amp>0?[colmap[3*chan], colmap[3*chan+1], colmap[3*chan+2] ] : [0,0,0];
+        return (amp>0)?[colmap[3*chan], colmap[3*chan+1], colmap[3*chan+2] ] : [0,0,0];
     }
 
     idx2RgbChanRegrid( idx, chan )
@@ -153,7 +153,8 @@ class view_freq_iq extends view_zoom_pan {
             this.cache_bitmap = new Uint8ClampedArray( this.num_symbols * this.num_sc * 4 );
             for( let sym = 0; sym < this.num_symbols; sym++ ) {
                 for( let sc = 0; sc < this.num_sc; sc++ ) {
-                    let color = this.idx2Rgb(sym * this.num_sc + sc);
+                    let idx = sym * this.num_sc + sc;
+                    let color = this.idx2Rgb(idx, this.chan_map[idx]);
                     let offset = (sym + sc * this.num_symbols) * 4;
                     this.cache_bitmap[offset]     = color[0];     // R
                     this.cache_bitmap[offset + 1] = color[1];     // G
@@ -225,11 +226,14 @@ class view_freq_iq extends view_zoom_pan {
                     ctx.fillRect(x, y, w_x, w_y);
 
                     if ((sx > 50) && (sy > 50) && (this.onRenderBox))
-                        this.onRenderBox(x, y, sx, sy, idx);
+                        this.onRenderBox(x, y, w_x, w_y, idx);
                 }
             }
         }
         this.drawRulers();
+        ctx.strokeStyle = 'yellow';
+        ctx.fillStyle = 'green';
+       
     }
 
     
@@ -277,11 +281,13 @@ class view_freq_iq extends view_zoom_pan {
         let ctx = this.context;
         const sx = this.sx * this.width/this.num_symbols;        
         const sy = this.sy * this.height/this.num_sc;
-        
+        const xpos = this.x0>50?this.x0-50:0;
+        let   ypos = this.sy * this.height + this.y0;
+        if (ypos>this.height-30) ypos = this.height-30;
         // Draw frequency ruler on the left side
         // transulcent dark overlay
         ctx.fillStyle = 'rgba(0.2,0.2,0.2,0.5)';
-        ctx.fillRect( 0, 0, 50, this.height );
+        ctx.fillRect( xpos, 0, 50, this.height );
         ctx.fillStyle = 'white';
         ctx.strokeStyle = 'white';
         let rb = 0;
@@ -291,18 +297,23 @@ class view_freq_iq extends view_zoom_pan {
             if (y < 0) continue;
             if (y > this.height) break;
             rb = sc/12;
-            ctx.fillText( 'rb: ' + rb, 4, y );
+            ctx.fillText( 'rb: ' + rb, xpos+4, y );
             
             ctx.beginPath();
-            ctx.moveTo( 0, y0 );
-            ctx.lineTo( 30, y0 );
+            ctx.moveTo( xpos, y0 );
+            ctx.lineTo( xpos+30, y0 );
             ctx.stroke();
         }
 
+        if (xpos>20)
+        {
+            drawArrow( ctx, xpos-25, this.y0+this.sy*this.height, xpos-25, this.y0, "Frequency: " + this.num_sc +" subcarriers"  );
+        }
+ 
         // Draw time ruler on the bottom
      
         ctx.fillStyle = 'rgba(0.2,0.2,0.2,0.5)';
-        ctx.fillRect( 0, this.height-30, this.width, 30 );
+        ctx.fillRect( 0, ypos, this.width, 30 );
         ctx.fillStyle = 'white';
         ctx.strokeStyle = 'white';
         for( let sym=0; sym < this.num_symbols; sym++ ) {
@@ -311,10 +322,13 @@ class view_freq_iq extends view_zoom_pan {
             if (x < 0) continue;
             if (x > this.width) break;
             if ((sx<10) && (sym%14)) continue;
-            ctx.fillText( sym%14, (x0+x)/2, this.height-12 );
+            ctx.fillText( sym%14, (x0+x)/2, ypos+28 );
             if (!(sym%14))
-                ctx.fillText( sym/14, (x0+x)/2, this.height-2 );
+                ctx.fillText( sym/14, (x0+x)/2, ypos+12 );
         }
+
+        if (this.height-ypos>30)
+            drawArrow( ctx, this.x0, ypos+50, this.sx * this.width+this.x0, ypos+50, " Time:" + this.num_symbols +" symbols" )
     }
 
 
@@ -323,7 +337,7 @@ class view_freq_iq extends view_zoom_pan {
         let ctx = this.context;
         // transulcent dark overlay
         ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.fillRect( x+4, y+4, sx-8, sy-8);
+        ctx.fillRect( x+4, y+4, sx-12, sy-12);
 
         // draw graph arrows in the center of the box
         let cx = x + sx/2;
@@ -349,6 +363,7 @@ class view_freq_iq extends view_zoom_pan {
 
         // text
         let angle_deg = Math.round( Math.atan2(this.data[1][idx], this.data[0][idx]) * 180 / Math.PI );
+        ctx.fillText(  colmap_names[ this.chan_map[idx] ], x+8,y+14);
         ctx.fillText( (idx%this.num_sc) + ' ' + angle_deg + '°', x+8,y+24);
         ctx.fillText( 'i: '+(this.data[0][idx].toFixed(4)), x+8,y+34);
         ctx.fillText( 'q: '+(this.data[1][idx].toFixed(4)), x+8,y+44);

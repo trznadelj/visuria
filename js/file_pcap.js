@@ -21,7 +21,7 @@ function app_onFileType_pcap( name )
     return "unknown";
 }
 
-app_registerFileLoader( app_onFileLoad_pcap, app_onFileType_pcap, "pcap" );
+app_registerFileLoader( app_onFileLoad_pcap, app_onFileType_pcap, "pcap", "pcap" );
 
 class pcap_reader {
     constructor( bytes ) {

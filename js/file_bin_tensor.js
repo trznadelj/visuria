@@ -33,4 +33,4 @@ function app_onFileType_tensor(name) {
     return "unknown";
 }
 
-app_registerFileLoader(app_onFileLoad_tensor_all, app_onFileType_tensor, "bin");
+app_registerFileLoader(app_onFileLoad_tensor_all, app_onFileType_tensor, "bin", "tensor");

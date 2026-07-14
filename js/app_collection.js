@@ -1,10 +1,13 @@
-function app_registerFileLoader( onLoadFunction, fileTypeFunction, fileType )
+function app_registerFileLoader( onLoadFunction, fileTypeFunction, fileType, fileDescription )
 {
     app.fileLoaders[fileType] = {
         onLoad: onLoadFunction,
-        fileType: fileTypeFunction
+        fileType: fileTypeFunction,
+        fileDescription: fileDescription
     };
     debug("Registered file loader for type: " + fileType);
+    document.getElementById('file_dialog__file_type').
+       add(new Option( fileDescription, fileType));
 }
 
 
@@ -34,25 +37,32 @@ function app_setView( view )
         case 'time':
             app.view_time.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
             app.view_time.onRender();
+            app.curr_view = app.view_time;
             break;
+
         case 'iq':
             app.view_freq.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
             app.view_freq.setRenderType('iq');
             app.view_freq.onRender();            
+            app.curr_view = app.view_freq;
             break;
 
         case 'freq':
             app.view_freq.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
             app.view_freq.setRenderType('regrid');
             app.view_freq.onRender();
+            app.curr_view = app.view_freq;
             break;
     }
+
+    
 }
 
 function time_to_freq( time_data, sym_starts, fft_size, num_sc )
 {
     let f = [[], []];
     for (let i = 1; i < sym_starts.length; i += 2) {
+        if (sym_starts[i+1]>time_data[0].length) break;
         let sym_time = v_slice(time_data, sym_starts[i], sym_starts[i + 1]);
         let sym_freq = fft(sym_time, 0);
 
@@ -86,16 +96,30 @@ function app_packet_dissector( view_pcap )
     return ret;
 }
 
-function app_onFileLoad( file, content )
+function app_genRbmap( config, chan_map )
+{
+    let num_sc = config.num_sc;
+    let ant_interleaved = config.ant_interleaved;
+
+    for( let i=0; i<chan_map.length; i++)
+    {
+        let symbol = Math.floor( i/(num_sc*ant_interleaved));
+        let sym_in_slot = symbol%14;
+
+        if (sym_in_slot==0) chan_map[i] = 2; else //  PDCCH / PUCCH
+        if (sym_in_slot==1) chan_map[i] = 1; else //  DMRS
+                            chan_map[i] = 3;      //  PDSCH
+
+    }
+
+
+
+    return chan_map;
+}
+
+function app_onFileLoad( file, content, fileType )
 {
     const dataView = new DataView(content); 
-    const fileType = app_guessFileTypeByName( file.name );
-
-    if (fileType == "unknown")
-    {
-        debug("Unknown file type for file: " + file.name);
-        return;
-    }
 
     debug("File: "+ file.name +" " + fileType + " " + file.size + " bytes" );
 
@@ -105,52 +129,53 @@ function app_onFileLoad( file, content )
     D = app.current_data = fileLoader.onLoad( dataView );
     app_addToCollection( app.current_data, fileType, file.name );
 
+    let config = {
+        num_sc: Number(document.getElementById('file_dialog__num_sc').value),
+        fft_size: Number(document.getElementById('file_dialog__fft_size').value),
+        u: Number(document.getElementById('file_dialog__NR_u').value),
+        cp_map: JSON.parse(document.getElementById('file_dialog__cp_map').value),
+        ant_interleaved: JSON.parse(document.getElementById('file_dialog__ant_interleaved').value)
+    };
+
     switch(fileType) 
     {
         case 'iq':
-            let config = {
-                num_sc: Number(document.getElementById('file_dialog__num_sc').value),
-                fft_size: Number(document.getElementById('file_dialog__fft_size').value),
-                u: Number(document.getElementById('file_dialog__NR_u').value),
-                cp_map: JSON.parse(document.getElementById('file_dialog__cp_map').value) };
-            app_view_time_iq = new view_time_iq(app.current_data);
+            app.view_time = app_view_time_iq = new view_time_iq(app.current_data);
             app_view_time_iq.setConfig( config );
-            //app_view_time_iq.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
-            
-            //app_view_time_iq.onRender();
-            app.view_time = app_view_time_iq;
 
             // Convert time-domain data to frequency domain
             let f = time_to_freq(app.current_data, app_view_time_iq.sym_starts, config.fft_size, config.num_sc);
-
-            app_view_freq_iq = new view_freq_iq(f);
-            app_view_freq_iq.setConfig( config );
-            app_view_freq_iq.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
-            app_view_freq_iq.onRender();
-            app.view_freq = app_view_freq_iq;
-
+            app.curr_view = app.view_freq = app_view_freq_iq = new view_freq_iq(f);
+            app.curr_view.setConfig( config );
+            app.curr_view.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
+            app.curr_view.onRender();
+            app.curr_view.chan_map = app_genRbmap( config, app.curr_view.chan_map );
             break;
 
         case 'freqiq':
-            app_view_freq_iq = new view_freq_iq(app.current_data);
-            app_view_freq_iq.setConfig( { num_sc: Number(document.getElementById('file_dialog__num_sc').value) } );
-            app_view_freq_iq.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
-            app_view_freq_iq.onRender();
-            app.view_freq = app_view_freq_iq;
+            app.curr_view = app.view_freq = app_view_freq_iq = new view_freq_iq(app.current_data);
+            app.curr_view.setConfig( config );
+            app.curr_view.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
+            app.curr_view.onRender();
+            app.curr_view.chan_map = app_genRbmap( config, app.curr_view.chan_map );
             break;
 
         case 'csv':
-            app_view_table = new view_table(app.current_data);
-            document.getElementById("fs_table").innerHTML = app_view_csv.getTable();
-            app.view_table = app_view_table;
+            app.curr_view = app.view_table = app_view_table = new view_table(app.current_data);
+            document.getElementById("fs_table").innerHTML = app.curr_view.getTable();
             break;
 
         case 'pcap':
             app.pcap = app.current_data;            
-            app_view_table = new view_table( app_packet_dissector( app.current_data ) );
-            document.getElementById("fs_table").innerHTML = app_view_table.getTable();
-            app.view_table = app_view_table;
+            app.curr_view = app.view_table = app_view_table = new view_table( app_packet_dissector( app.current_data ) );
+            document.getElementById("fs_table").innerHTML = app.curr_view.getTable();
             break;
+
+        case 'json':
+            app.pcap = app.current_data;  
+            app.curr_view = app.view_table = app_view_table = new view_table( app.current_data  );
+            document.getElementById("fs_table").innerHTML = app.curr_view.getTable();             
+        break;
 
         default:
             debug("No view available for file type: " + fileType);

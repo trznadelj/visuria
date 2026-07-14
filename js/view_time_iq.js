@@ -92,8 +92,8 @@ class view_time_iq extends view_zoom_pan {
         const y0 = this.y0;
         let y = this.height + y0;
         if (y > this.height - 30) y = this.height - 30;
-        // Draw time ruler on the bottom
 
+        // Draw time ruler on the bottom
         ctx.fillStyle = 'rgba(0.2,0.2,0.2,0.5)';
         ctx.fillRect(0, y, this.width, 30);
         ctx.fillStyle = 'rgba(0, 148, 0, 0.2)';
@@ -128,6 +128,9 @@ class view_time_iq extends view_zoom_pan {
             if (sx > 1)
                 ctx.fillText(sample, x + 5, y + 15);
         }
+
+        drawArrow( ctx, this.x0, y+50, this.sx * this.width+this.x0, y+50, " Time:" + this.data[0].length +" samples" );
+        drawArrow( ctx, this.x0-35, y, this.x0-35, y -this.sy *this.height , " Amplitude: 0..." + this.max );
     };
 
 };
