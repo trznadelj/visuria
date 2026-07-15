@@ -60,15 +60,38 @@ function app_setView( view )
 
 function time_to_freq( time_data, sym_starts, fft_size, num_sc )
 {
-    let f = [[], []];
+    
+    let num_symbols=0;
+    for (let i = 1; i < sym_starts.length; i += 2) {
+        if (sym_starts[i+1]>time_data[0].length) break;
+        num_symbols++;
+    }
+
+    let f = [new Array(num_symbols*num_sc), new Array(num_symbols*num_sc)];
+    let p = 0;
     for (let i = 1; i < sym_starts.length; i += 2) {
         if (sym_starts[i+1]>time_data[0].length) break;
         let sym_time = v_slice(time_data, sym_starts[i], sym_starts[i + 1]);
         let sym_freq = fft(sym_time, 0);
+        const re = sym_freq[0];
+        const im = sym_freq[1];
 
+
+        for( let j=fft_size-num_sc/2; j<fft_size; j++, p++)
+        {
+            f[0][p]=re[j]; f[1][p]=im[j];
+        }
+
+        for( let j=0; j<num_sc/2; j++, p++)
+        {
+            f[0][p]=re[j]; f[1][p]=im[j];
+        }
+
+/*const re = Array.from(sym_freq[0]);
+const im = Array.from(sym_freq[1]);
         // add samples from sym_freq[] to f[0]
-        f[0] = f[0].concat(sym_freq[0].slice(fft_size - num_sc/2, fft_size)).concat(sym_freq[0].slice(0, num_sc/2));
-        f[1] = f[1].concat(sym_freq[1].slice(fft_size - num_sc/2, fft_size)).concat(sym_freq[1].slice(0, num_sc/2));
+        f[0] = f[0].concat(re.slice(fft_size - num_sc/2, fft_size)).concat(re.slice(0, num_sc/2));
+        f[1] = f[1].concat(im.slice(fft_size - num_sc/2, fft_size)).concat(im.slice(0, num_sc/2));*/
     }
     return f;
 }
