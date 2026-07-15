@@ -126,7 +126,9 @@ function app_onFileLoad( file, content, fileType )
     app_setTitle( "Visuria - " + file.name );
 
     let fileLoader = app.fileLoaders[fileType];
+    timestart();
     D = app.current_data = fileLoader.onLoad( dataView );
+    timestamp( "File loaded");
     app_addToCollection( app.current_data, fileType, file.name );
 
     let config = {
@@ -145,6 +147,7 @@ function app_onFileLoad( file, content, fileType )
 
             // Convert time-domain data to frequency domain
             let f = time_to_freq(app.current_data, app_view_time_iq.sym_starts, config.fft_size, config.num_sc);
+            timestamp( "FFT done");
             app.curr_view = app.view_freq = app_view_freq_iq = new view_freq_iq(f);
             app.curr_view.setConfig( config );
             app.curr_view.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
@@ -181,6 +184,8 @@ function app_onFileLoad( file, content, fileType )
             debug("No view available for file type: " + fileType);
             break;
     }
+
+    timestamp( "File processing ended.")
 
     $('#dropzone').hide();
     $('#fs_main').show();
