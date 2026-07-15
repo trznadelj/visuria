@@ -60,39 +60,39 @@ function app_setView( view )
 
 function time_to_freq( time_data, sym_starts, fft_size, num_sc )
 {
-    
     let num_symbols=0;
     for (let i = 1; i < sym_starts.length; i += 2) {
         if (sym_starts[i+1]>time_data[0].length) break;
         num_symbols++;
     }
 
-    let f = [new Array(num_symbols*num_sc), new Array(num_symbols*num_sc)];
+    let outputSize = num_symbols*num_sc;
+    let f = [
+        new Float32Array(outputSize),
+        new Float32Array(outputSize)
+    ];
+
+    const halfSc = num_sc >>> 1;
     let p = 0;
-    for (let i = 1; i < sym_starts.length; i += 2) {
-        if (sym_starts[i+1]>time_data[0].length) break;
-        let sym_time = v_slice(time_data, sym_starts[i], sym_starts[i + 1]);
-        let sym_freq = fft(sym_time, 0);
-        const re = sym_freq[0];
-        const im = sym_freq[1];
 
+    // todo: dc subcarrier removal, half subcarrier shift.
+    for (let i = 1; i + 1 < sym_starts.length; i += 2) {
+        const end = sym_starts[i + 1];
+        if (end > time_data[0].length) break;
 
-        for( let j=fft_size-num_sc/2; j<fft_size; j++, p++)
-        {
-            f[0][p]=re[j]; f[1][p]=im[j];
-        }
+        const [re, im] = fft(v_slice(time_data, sym_starts[i], end), false);
 
-        for( let j=0; j<num_sc/2; j++, p++)
-        {
-            f[0][p]=re[j]; f[1][p]=im[j];
-        }
+        const fftSize = re.length;
+        const highStart = fftSize - halfSc;
 
-/*const re = Array.from(sym_freq[0]);
-const im = Array.from(sym_freq[1]);
-        // add samples from sym_freq[] to f[0]
-        f[0] = f[0].concat(re.slice(fft_size - num_sc/2, fft_size)).concat(re.slice(0, num_sc/2));
-        f[1] = f[1].concat(im.slice(fft_size - num_sc/2, fft_size)).concat(im.slice(0, num_sc/2));*/
+        f[0].set(re.subarray(highStart), p);
+        f[1].set(im.subarray(highStart), p);
+        f[0].set(re.subarray(0, halfSc), p + halfSc);
+        f[1].set(im.subarray(0, halfSc), p + halfSc);
+
+        p += num_sc;
     }
+
     return f;
 }
 
@@ -114,6 +114,11 @@ function app_packet_dissector( view_pcap )
             eth_type: (pkt[12] << 8 | pkt[13]).toString(16).padStart(4, '0')
         };
 
+        switch( pkt_info.eth_type )
+        {
+            case 0xAEFE: pkt_info.eth_type_name = 'ECPRI'; break;
+        }
+
         ret.push(pkt_info);
     }
     return ret;
@@ -134,8 +139,6 @@ function app_genRbmap( config, chan_map )
                             chan_map[i] = 3;      //  PDSCH
 
     }
-
-
 
     return chan_map;
 }
