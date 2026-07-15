@@ -335,38 +335,49 @@ class view_freq_iq extends view_zoom_pan {
     onRenderBox( x, y, sx, sy, idx )
     {
         let ctx = this.context;
+        let s  = Math.min( sx, sy );
+        let overlay_alpha = Math.min( 0.5, s/200 );
+        let line_alpha = Math.min( 1, s/200 );
+        let vi = this.data[0][idx];
+        let vq = this.data[1][idx];
+
+        if (vi*vi+vq*vq<0.0001) return;
         // transulcent dark overlay
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillStyle = 'rgba(0,0,0,'+overlay_alpha+')';
         ctx.fillRect( x+4, y+4, sx-12, sy-12);
 
         // draw graph arrows in the center of the box
         let cx = x + sx/2;
         let cy = y + sy/2;
-
-        ctx.strokeStyle = 'white';
-        ctx.beginPath();
-        ctx.moveTo( x+6, cy);
-        ctx.lineTo( x+sx-12, cy);
-        ctx.stroke();
-        ctx.moveTo( cx, y+6);
-        ctx.lineTo( cx, y+sy-12);
-        ctx.stroke();
-
+        let col = 
+        ctx.fillStyle =
+        ctx.strokeStyle = 'rgba(255,255,255,'+line_alpha+')';
+  
+        drawArrow(ctx, cx, y+sy-12, cx, y+6, "", { startArrow: false, strokeStyle: colmap, fillStyle:col });
+        drawArrow(ctx, x+6, cy, x+sx-12, cy, "", { startArrow: false, strokeStyle: colmap, fillStyle:col });
 
         // draw pixel in i/q position, assuming i/q are normalized to [-1,1]*this.max_val  
         let px = x + (1 + this.data[0][idx]/this.max_val) * sx/2;
         let py = y + (1 - this.data[1][idx]/this.max_val) * sy/2;
-        ctx.fillStyle='white';
+        //ctx.fillStyle='white';
         ctx.fillRect( px-2, py-2, 4, 4);
 
-        if ((sx<100)||(sy<100)) return;
+        if (s<60) return;
 
         // text
         let angle_deg = Math.round( Math.atan2(this.data[1][idx], this.data[0][idx]) * 180 / Math.PI );
-        ctx.fillText(  colmap_names[ this.chan_map[idx] ], x+8,y+14);
-        ctx.fillText( (idx%this.num_sc) + ' ' + angle_deg + '°', x+8,y+24);
-        ctx.fillText( 'i: '+(this.data[0][idx].toFixed(4)), x+8,y+34);
-        ctx.fillText( 'q: '+(this.data[1][idx].toFixed(4)), x+8,y+44);
+        
+        let fs = Math.max( s/30+4, 6 )|0;
+        let fs_s = Math.max( s/45+2, 4 )|0;
+        ctx.font=fs+"px Verdana";
+        ctx.fillText(  colmap_names[ this.chan_map[idx] ], x+8,y+4+fs);
+        ctx.fillText( (idx%this.num_sc) + ' ' + angle_deg + '°', x+8,y+4+2*fs);
+        ctx.fillText( 'i: '+(this.data[0][idx].toFixed(4)), x+8,y+4+3*fs);
+        ctx.fillText( 'q: '+(this.data[1][idx].toFixed(4)), x+8,y+4+4*fs);
+        ctx.fillText( 'abs: '+(Math.sqrt(vi*vi+vq*vq)).toFixed(4), x+8,y+4+5*fs);
+        if (s<100) return;
+
+         drawArrow(ctx, x+sx/2, y+sy/2, px, py, "signal", { startArrow: false, strokeStyle: colmap, fillStyle:col, textOffset: fs_s, font: fs_s+"px Verdana"});
     }
 
 };

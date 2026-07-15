@@ -41,7 +41,7 @@ class view_time_iq extends view_zoom_pan {
         const sx = this.sx * this.width / this.data[0].length;//n;
         const sy = this.sy * this.height / (this.max - this.min);
 
-        let yd = this.height + y0;
+        let yd = y0 + this.max*sy;
         let cwidth = (sx < 1) ? 1 : (sx | 0);
 
         ctx.fillStyle = 'white';//`rgb(${c},${c},${c})`;
@@ -53,7 +53,7 @@ class view_time_iq extends view_zoom_pan {
                 if (x < 0) continue;
                 if (x > this.width) break;
                 if (cx!=x) {
-                    let y = this.height - h * sy + y0;
+                    let y = (this.max-h)*sy+y0;//this.height - h * sy + y0;
                     ctx.fillRect(cx, y, 1, yd - y);
                     cx = x;
                     h = 0;
@@ -70,7 +70,8 @@ class view_time_iq extends view_zoom_pan {
                 if (x > this.width) break;
                 let yv = Math.sqrt(vi[i] * vi[i] + vq[i] * vq[i]);
 
-                let y = this.height - yv * sy + y0;
+                let y = (this.max-yv)*sy+y0;
+                //this.height - yv * sy + y0;
                 let c = Math.floor(yv * 256);
 
                 ctx.fillRect(x, y, cwidth, yd - y);
@@ -90,7 +91,7 @@ class view_time_iq extends view_zoom_pan {
         const sx = this.sx * this.width / this.data[0].length;//n;
         const sy = this.sy * this.height / (this.max - this.min);
         const y0 = this.y0;
-        let y = this.height + y0;
+        let y = this.max*sy + y0;
         if (y > this.height - 30) y = this.height - 30;
 
         // Draw time ruler on the bottom
