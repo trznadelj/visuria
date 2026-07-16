@@ -1,3 +1,9 @@
+07.16.2026
+ - 8 bit IQ format (rtlsdr)
+ - txt file format
+ - bluestein FFT algorithm
+ - small change in time_iq
+
 07.14.2026
  - cleanup, refactoring. added arrows to describe time/freq views. automatic addition of file formats to file dialog.
 

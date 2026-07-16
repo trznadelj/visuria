@@ -1,3 +1,5 @@
+var force_naive_fft = 0;
+
 function fft([re, im], is_ifft)
 // fft — dispatch: ct_fft if PoT length, else naive_fft.
 {
@@ -10,114 +12,14 @@ function fft([re, im], is_ifft)
         if (N==1536)
             return fft1536( [re,im], is_ifft);
         else
-            return naive_fft([re, im], is_ifft);
+        {
+            if (force_naive_fft)
+                return naive_fft([re, im], is_ifft);
+            return bluesteinFFT([re, im], is_ifft);            
+        }
     }
 }
 
-/*
-function ct_fft([re, im], is_ifft)
-// ct_fft — Cooley-Tukey radix-2 FFT/IFFT. Zero-pads to next power of 2.
-{
-    const N = re.length;
-    if (N <= 1) return [re.slice(), im.slice()];
-
-    const M = Math.pow(2, Math.ceil(Math.log2(N)));
-    const reOut = new Array(M).fill(0);
-    const imOut = new Array(M).fill(0);
-
-    // bit-reversal permutation
-    const bits = Math.log2(M);
-    for (let i = 0; i < N; i++) {
-        const j = bitReverse(i, bits);
-        reOut[j] = re[i];
-        imOut[j] = im[i];
-    }
-
-    // iterative butterfly
-    for (let len = 2; len <= M; len <<= 1) {
-        const half = len >>> 1;
-        const angle = (is_ifft ? 1 : -1) * 2 * Math.PI / len;
-
-        for (let i = 0; i < M; i += len) {
-            for (let j = 0; j < half; j++) {
-                const wRe = Math.cos(angle * j);
-                const wIm = Math.sin(angle * j);
-
-                const idx  = i + j;
-                const idx2 = idx + half;
-
-                const uRe = reOut[idx];
-                const uIm = imOut[idx];
-                const vRe = reOut[idx2];
-                const vIm = imOut[idx2];
-
-                const tRe = wRe * vRe - wIm * vIm;
-                const tIm = wRe * vIm + wIm * vRe;
-
-                reOut[idx]  = uRe + tRe;
-                imOut[idx]  = uIm + tIm;
-                reOut[idx2] = uRe - tRe;
-                imOut[idx2] = uIm - tIm;
-            }
-        }
-    }
-
-    // Constant power
-//    if (is_ifft) {
-        const invN = 1 / Math.sqrt(M);
-        for (let i = 0; i < M; i++) {
-            reOut[i] *= invN;
-            imOut[i] *= invN;
-        }
-  //  }
-
-    return [reOut, imOut];
-}
-
-function fft1536([re, im], is_ifft)
-// fft1536 — specialized FFT for length 1536 (2^9 * 3).
-{
-    const N = re.length;
-    if (N !== 1536) throw new Error("fft1536: input length must be 1536");
-
-    // Split into 3 segments of length 512
-    const segLen = 512;
-    const segs = [[], [], []];
-    for (let i = 0; i < N; i++) {
-        segs[i % 3].push([re[i], im[i]]);
-    }
-
-    // Perform FFT on each segment
-    const fftSegs = segs.map(seg => ct_fft(seg, is_ifft));
-
-    // Combine the results using the Cooley-Tukey method
-    const reOut = new Array(N).fill(0);
-    const imOut = new Array(N).fill(0);
-    for (let k = 0; k < segLen; k++) {
-        for (let j = 0; j < 3; j++) {
-            const angle = (is_ifft ? 1 : -1) * 2 * Math.PI * j * k / N;
-            const wRe = Math.cos(angle);
-            const wIm = Math.sin(angle);
-
-            const idx = k + j * segLen;
-            const [segRe, segIm] = fftSegs[j];
-
-            reOut[idx] = segRe[k] * wRe - segIm[k] * wIm;
-            imOut[idx] = segRe[k] * wIm + segIm[k] * wRe;
-        }
-    }
-
-    // Constant power
-    if (is_ifft) {
-        const invN = 1 / Math.sqrt(N);
-        for (let i = 0; i < N; i++) {
-            reOut[i] *= invN;
-            imOut[i] *= invN;
-        }
-    }
-
-    return [reOut, imOut];
-}*/
 
 function naive_fft([re, im], is_ifft)
 // naive_fft — O(N²) DFT/IDFT straight from definition.
@@ -431,3 +333,200 @@ function fft1536([re, im], isIFFT = false) {
 
     return [reOut, imOut];
 }
+
+
+/**
+ * Bluestein FFT for arbitrary transform lengths.
+ *
+ * Uses fftRadix2InPlace() internally for convolution.
+ * The radix-2 FFT is assumed to use unitary normalization:
+ *
+ *     scale = 1 / sqrt(n)
+ *
+ * Input:
+ *     bluesteinFFT([realArray, imagArray], isIFFT)
+ *
+ * Output:
+ *     [Float64Array, Float64Array]
+ *
+ * The output length is exactly equal to the input length.
+ */
+function bluesteinFFT([re, im], isIFFT = false) {
+    const N = re.length;
+
+    if (N !== im.length) {
+        throw new Error(
+            "bluesteinFFT: real and imaginary arrays must have equal length"
+        );
+    }
+
+    if (N === 0) {
+        return [
+            new Float64Array(0),
+            new Float64Array(0)
+        ];
+    }
+
+    if (N === 1) {
+        return [
+            new Float64Array([re[0]]),
+            new Float64Array([im[0]])
+        ];
+    }
+
+    /*
+     * Bluestein converts the N-point DFT into a convolution.
+     *
+     * The linear convolution length is:
+     *
+     *     2*N - 1
+     *
+     * Choose the next power-of-two length for the radix-2 FFT.
+     */
+    let M = 1;
+
+    while (M < 2 * N - 1) {
+        M *= 2;
+    }
+
+    const aRe = new Float64Array(M);
+    const aIm = new Float64Array(M);
+    const bRe = new Float64Array(M);
+    const bIm = new Float64Array(M);
+
+    /*
+     * Forward FFT:
+     *
+     *     X[k] = sum x[n] exp(-i*2*pi*n*k/N)
+     *
+     * Inverse FFT:
+     *
+     *     X[k] = sum x[n] exp(+i*2*pi*n*k/N)
+     *
+     * Both transforms use unitary normalization.
+     */
+    const direction = isIFFT ? 1 : -1;
+
+    /*
+     * Bluestein identity:
+     *
+     * exp(direction*i*2*pi*n*k/N)
+     *
+     * = exp(direction*i*pi*n^2/N)
+     *   exp(direction*i*pi*k^2/N)
+     *   exp(-direction*i*pi*(k-n)^2/N)
+     *
+     * Therefore:
+     *
+     * a[n] = x[n] exp(direction*i*pi*n^2/N)
+     * b[n] =      exp(-direction*i*pi*n^2/N)
+     */
+    for (let n = 0; n < N; n++) {
+        /*
+         * Reduce n^2 modulo 2*N because:
+         *
+         *     exp(i*pi*(n^2 + 2*N)/N)
+         *       = exp(i*pi*n^2/N)
+         *
+         * This also avoids unnecessarily large angles.
+         *
+         * Number arithmetic is exact here while n^2 remains below
+         * Number.MAX_SAFE_INTEGER, which covers practical FFT sizes.
+         */
+        const n2mod = (n * n) % (2 * N);
+        const angle = direction * Math.PI * n2mod / N;
+
+        const chirpRe = Math.cos(angle);
+        const chirpIm = Math.sin(angle);
+
+        const xRe = re[n];
+        const xIm = im[n];
+
+        // a[n] = x[n] * chirp[n]
+        aRe[n] = xRe * chirpRe - xIm * chirpIm;
+        aIm[n] = xRe * chirpIm + xIm * chirpRe;
+
+        /*
+         * b[n] = conjugate(chirp[n])
+         *
+         * Positive and negative indices must both be present for
+         * the circular convolution to represent linear convolution:
+         *
+         *     b[-n] = b[M - n]
+         */
+        const kernelRe = chirpRe;
+        const kernelIm = -chirpIm;
+
+        bRe[n] = kernelRe;
+        bIm[n] = kernelIm;
+
+        if (n !== 0) {
+            bRe[M - n] = kernelRe;
+            bIm[M - n] = kernelIm;
+        }
+    }
+
+    /*
+     * Transform both convolution operands.
+     */
+    fftRadix2InPlace(aRe, aIm, false);
+    fftRadix2InPlace(bRe, bIm, false);
+
+    /*
+     * Pointwise complex multiplication.
+     */
+    for (let i = 0; i < M; i++) {
+        const ar = aRe[i];
+        const ai = aIm[i];
+        const br = bRe[i];
+        const bi = bIm[i];
+
+        aRe[i] = ar * br - ai * bi;
+        aIm[i] = ar * bi + ai * br;
+    }
+
+    /*
+     * Convert back to the time domain.
+     *
+     * Because fftRadix2InPlace() is unitary-normalized, convolution
+     * requires an extra factor sqrt(M):
+     *
+     *     convolution = sqrt(M) * IFFT(FFT(a) * FFT(b))
+     */
+    fftRadix2InPlace(aRe, aIm, true);
+
+    const convolutionScale = Math.sqrt(M);
+    const outputScale = 1 / Math.sqrt(N);
+    const totalScale = convolutionScale * outputScale;
+
+    const reOut = new Float64Array(N);
+    const imOut = new Float64Array(N);
+
+    /*
+     * Apply the final chirp:
+     *
+     * result[k] =
+     *     chirp[k] * convolution[k] / sqrt(N)
+     */
+    for (let k = 0; k < N; k++) {
+        const k2mod = (k * k) % (2 * N);
+        const angle = direction * Math.PI * k2mod / N;
+
+        const chirpRe = Math.cos(angle);
+        const chirpIm = Math.sin(angle);
+
+        const valueRe = aRe[k];
+        const valueIm = aIm[k];
+
+        reOut[k] =
+            (valueRe * chirpRe - valueIm * chirpIm) *
+            totalScale;
+
+        imOut[k] =
+            (valueRe * chirpIm + valueIm * chirpRe) *
+            totalScale;
+    }
+
+    return [reOut, imOut];
+}
+

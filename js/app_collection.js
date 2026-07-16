@@ -167,7 +167,9 @@ function app_onFileLoad( file, content, fileType )
 
     switch(fileType) 
     {
+        case 'txt':
         case 'iq':
+        case 'iq8bit':
             app.view_time = app_view_time_iq = new view_time_iq(app.current_data);
             app_view_time_iq.setConfig( config );
 
@@ -181,6 +183,7 @@ function app_onFileLoad( file, content, fileType )
             app.curr_view.chan_map = app_genRbmap( config, app.curr_view.chan_map );
             break;
 
+        case 'freqtxt':
         case 'freqiq':
             app.curr_view = app.view_freq = app_view_freq_iq = new view_freq_iq(app.current_data);
             app.curr_view.setConfig( config );

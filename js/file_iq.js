@@ -22,6 +22,29 @@ function app_onFileLoad_iq16bit( view, json_description )
 }
 
 
+function app_onFileLoad_iq8bit(  view, json_description )
+{
+    const bytes   = new Uint8Array( view.buffer );
+    const len     = bytes.length;    
+    let n_start = Number(document.getElementById('file_dialog__skip_bytes').value);
+
+    var _time_i = [];
+    var _time_q = [];
+    var k       = 0;    
+
+    for( var n=n_start; n<len; n+=2, k++)
+    {
+      const _c_i=bytes[n  ];
+      const _c_q=bytes[n+1];
+      _time_i[k]=(_c_i-127)/128;
+      _time_q[k]=(_c_q-127)/128;
+    }
+
+    debug("app_onFileLoad_iq8bit: Loaded " + k +" samples");
+    return [ _time_i, _time_q ];
+}
+
+
 function app_onFileLoad_tensor(view, json_description) {
     const binBuf = view.buffer;
     const manifest = json_description;
@@ -46,6 +69,12 @@ function app_onFileType_iq16bit(name) {
     return "unknown";
 }
 
+function app_onFileType_iq8bit(name) {
+    if (name.endsWith(".rtlsdr"))
+        return "iq8bit";
+    return "unknown";
+}
+
 function app_onFileType_iq16bit_freq(name) {
     if (name.endsWith(".freqiq"))
         return "freqiq";
@@ -54,3 +83,4 @@ function app_onFileType_iq16bit_freq(name) {
 
 app_registerFileLoader(app_onFileLoad_iq16bit, app_onFileType_iq16bit, "iq", "16 bit IQ - time");
 app_registerFileLoader(app_onFileLoad_iq16bit, app_onFileType_iq16bit_freq, "freqiq", "16 bit IQ - frequency");
+app_registerFileLoader(app_onFileLoad_iq8bit, app_onFileType_iq8bit, "iq8bit", "8 bit IQ - time (rtlsdr)");

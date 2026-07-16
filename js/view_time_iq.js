@@ -46,20 +46,23 @@ class view_time_iq extends view_zoom_pan {
 
         ctx.fillStyle = 'white';//`rgb(${c},${c},${c})`;
 
-        if (sx < 0.2) {
-            let cx = x0 |0, h = 0;
+        if (sx < 0.4) {
+            let cx = x0 |0, h = 0, mh=9999999;
             for (let i = 0; i < n - 1; i++) {
                 let x = ( x0 + i * sx )|0;
                 if (x < 0) continue;
                 if (x > this.width) break;
                 if (cx!=x) {
                     let y = (this.max-h)*sy+y0;//this.height - h * sy + y0;
-                    ctx.fillRect(cx, y, 1, yd - y);
+                    let ym = (this.max-mh)*sy+y0;//this.height - h * sy + y0;
+                    ctx.fillRect(cx, y, 1, ym - y);
                     cx = x;
                     h = 0;
+                    mh=999999999;
                 }
                 let yv = Math.sqrt(vi[i] * vi[i] + vq[i] * vq[i]);
                 if (yv>h) h = yv;
+                if (yv<mh) mh = yv;
             }
         }
         else 
@@ -74,7 +77,7 @@ class view_time_iq extends view_zoom_pan {
                 //this.height - yv * sy + y0;
                 let c = Math.floor(yv * 256);
 
-                ctx.fillRect(x, y, cwidth, yd - y);
+                ctx.fillRect(x, y, cwidth, 2)//yd - y);
                 if (sx > 30) {
                     ctx.fillText(i, x, this.height - 5);
                     ctx.fillText(vi[i].toFixed(5), x, y - 5);
