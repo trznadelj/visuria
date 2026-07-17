@@ -57,6 +57,11 @@ class view_freq_iq extends view_zoom_pan {
         this.cache_bitmap = null;
     };
 
+    onRenderForced() {
+        this.cache_bitmap = null;
+        this.onRender();
+    }
+
     setRenderType( type ) {
         switch( type )
         {
@@ -156,6 +161,7 @@ class view_freq_iq extends view_zoom_pan {
                     let idx = sym * this.num_sc + sc;
                     let color = this.idx2Rgb(idx, this.chan_map[idx]);
                     let offset = (sym + sc * this.num_symbols) * 4;
+                    if (!this.flag_map[idx]) continue;
                     this.cache_bitmap[offset]     = color[0];     // R
                     this.cache_bitmap[offset + 1] = color[1];     // G
                     this.cache_bitmap[offset + 2] = color[2];     // B
@@ -233,9 +239,7 @@ class view_freq_iq extends view_zoom_pan {
         this.drawRulers();
         ctx.strokeStyle = 'yellow';
         ctx.fillStyle = 'green';
-       
     }
-
     
     onRenderIq() 
     {
@@ -252,29 +256,59 @@ class view_freq_iq extends view_zoom_pan {
         const sy = this.sy * this.height/2/this.max_val;
         const w_x= 2; 
         const w_y= 2;
+        const width = this.width, height = this.height;
 
         // Clear background — "only clean data for now"
         ctx.fillStyle   = 'black';
         ctx.fillRect     ( 0, 0, this.width , this.height );
 
-
+        let cache_bitmap = new Uint8ClampedArray( width *height* 4 );
         for (let sym = 0; sym < this.num_symbols; sym++) {
             for (let sc = 0; sc < this.num_sc; sc++) {
                 let idx = sym * this.num_sc + sc;
-
-                let x = vi[idx] * sx + x0;
-                let y = vq[idx] * sy + y0;
-                
                 if (!this.flag_map[idx]) continue;
+                let x = (vi[idx] * sx + x0)|0;
+                if ((x<0)||(x>=width-1)) continue;
+                let y = (vq[idx] * sy + y0)|0;
+                if ((y<0)||(y>=height-1)) continue;
+                let offset = (x+width*y)<<2;
+                let color = this.idx2Rgb( idx, this.chan_map[idx] );
+                cache_bitmap[offset]     = color[0];  cache_bitmap[offset + 1] = color[1];  cache_bitmap[offset + 2] = color[2];  cache_bitmap[offset + 3] = 255;        
+                offset+=4;
+                cache_bitmap[offset]     = color[0];  cache_bitmap[offset + 1] = color[1];  cache_bitmap[offset + 2] = color[2];  cache_bitmap[offset + 3] = 255;        
+                offset+=width*4;
+                cache_bitmap[offset]     = color[0];  cache_bitmap[offset + 1] = color[1];  cache_bitmap[offset + 2] = color[2];  cache_bitmap[offset + 3] = 255;        
+                offset-=4;
+                cache_bitmap[offset]     = color[0];  cache_bitmap[offset + 1] = color[1];  cache_bitmap[offset + 2] = color[2];  cache_bitmap[offset + 3] = 255;        
 
-                let color = this.idx2Color( idx, this.chan_map[idx] );
-                ctx.fillStyle = color;
-                ctx.fillRect(x, y, w_x, w_y);                
+                //ctx.fillStyle = color;
+                //ctx.fillRect(x, y, w_x, w_y);                
             }
         }
-        
+
+        let cache_canvas        = document.createElement('canvas');
+        cache_canvas.width  = width;
+        cache_canvas.height = height;
+        cache_canvas.getContext('2d').putImageData(new ImageData( cache_bitmap, width, height), 0, 0);
+
+        this.context.drawImage( cache_canvas,  0,0,width,height);
     }
 
+
+    onSelect(criterion)
+    {
+        for( let n=0; n<this.data[0].length; n++)
+        {
+            let sc = n%this.num_sc;
+            let sym= (n/this.num_sc)|0;
+            let sym_in_slot = sym%14;
+            let chan = this.chan_map[n];
+            if (eval(criterion))
+                this.flag_map[n]|=1;
+            else
+                this.flag_map[n]&=~1;
+        }
+    }
 
     drawRulers() 
     {
@@ -377,7 +411,7 @@ class view_freq_iq extends view_zoom_pan {
         ctx.fillText( 'abs: '+(Math.sqrt(vi*vi+vq*vq)).toFixed(4), x+8,y+4+5*fs);
         if (s<100) return;
 
-         drawArrow(ctx, x+sx/2, y+sy/2, px, py, "signal", { startArrow: false, strokeStyle: colmap, fillStyle:col, textOffset: fs_s, font: fs_s+"px Verdana"});
+        drawArrow(ctx, x+sx/2, y+sy/2, px, py, "signal", { startArrow: false, strokeStyle: colmap, fillStyle:col, textOffset: fs_s, font: fs_s+"px Verdana"});
     }
 
 };

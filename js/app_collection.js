@@ -53,9 +53,10 @@ function app_setView( view )
             app.view_freq.onRender();
             app.curr_view = app.view_freq;
             break;
-    }
 
-    
+        case 'fft':
+            break;
+    }
 }
 
 function time_to_freq( time_data, sym_starts, fft_size, num_sc )
@@ -135,7 +136,7 @@ function app_genRbmap( config, chan_map )
         let sym_in_slot = symbol%14;
 
         if (sym_in_slot==0) chan_map[i] = 2; else //  PDCCH / PUCCH
-        if (sym_in_slot==1) chan_map[i] = 1; else //  DMRS
+        if (sym_in_slot==2) chan_map[i] = 1; else //  DMRS
                             chan_map[i] = 3;      //  PDSCH
 
     }
