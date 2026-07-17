@@ -324,14 +324,32 @@ class view_freq_iq extends view_zoom_pan {
         ctx.fillRect( xpos, 0, 50, this.height );
         ctx.fillStyle = 'white';
         ctx.strokeStyle = 'white';
+        ctx.font=12+"px Verdana";
         let rb = 0;
-        for( let sc=0; sc < this.num_sc; sc+=12 ) {
+        for( let sc=0; sc < this.num_sc; sc++ ) {
             let y0 = (sc) * sy + this.y0;
             let y = (sc+6) * sy + this.y0;
             if (y < 0) continue;
             if (y > this.height) break;
             rb = sc/12;
-            ctx.fillText( 'rb: ' + rb, xpos+4, y );
+            if (sy>10)  
+                ctx.fillText( sc%12, xpos+16, y0+sy/2+4 );
+            if (sc%12) 
+            {
+                if (sy>4) 
+                {
+                    ctx.beginPath();
+                    ctx.moveTo( xpos+15, y0 );
+                    ctx.lineTo( xpos+30, y0 );
+                    ctx.stroke();       
+
+                }
+                continue;
+            }
+
+
+            if (sy>2)
+                ctx.fillText( 'rb: ' + rb, xpos+4, y );
             
             ctx.beginPath();
             ctx.moveTo( xpos, y0 );
@@ -356,9 +374,9 @@ class view_freq_iq extends view_zoom_pan {
             if (x < 0) continue;
             if (x > this.width) break;
             if ((sx<10) && (sym%14)) continue;
-            ctx.fillText( sym%14, (x0+x)/2, ypos+28 );
+            if (sx>10) ctx.fillText( sym%14, (x0+x)/2, ypos+12 );
             if (!(sym%14))
-                ctx.fillText( sym/14, (x0+x)/2, ypos+12 );
+                ctx.fillText( sym/14, (x0+x)/2, ypos+28 );
         }
 
         if (this.height-ypos>30)
@@ -381,18 +399,21 @@ class view_freq_iq extends view_zoom_pan {
         ctx.fillRect( x+4, y+4, sx-12, sy-12);
 
         // draw graph arrows in the center of the box
+        let dy = sy-20;
+        if (dy>sx-20) dy=sx-20;
+
         let cx = x + sx/2;
-        let cy = y + sy/2;
+        let cy = y + sy - dy/2;
         let col = 
         ctx.fillStyle =
         ctx.strokeStyle = 'rgba(255,255,255,'+line_alpha+')';
   
-        drawArrow(ctx, cx, y+sy-12, cx, y+6, "", { startArrow: false, strokeStyle: colmap, fillStyle:col });
-        drawArrow(ctx, x+6, cy, x+sx-12, cy, "", { startArrow: false, strokeStyle: colmap, fillStyle:col });
+        drawArrow(ctx, cx, y+sy-12, cx, y+sy-12-dy, "", { startArrow: false, strokeStyle: colmap, fillStyle:col });
+        drawArrow(ctx, cx-sx/2+6, cy, cx+sx/2-6, cy, "", { startArrow: false, strokeStyle: colmap, fillStyle:col });
 
         // draw pixel in i/q position, assuming i/q are normalized to [-1,1]*this.max_val  
-        let px = x + (1 + this.data[0][idx]/this.max_val) * sx/2;
-        let py = y + (1 - this.data[1][idx]/this.max_val) * sy/2;
+        let px = cx + this.data[0][idx]/this.max_val * dy/2;
+        let py = cy + this.data[1][idx]/this.max_val * dy/2;
         //ctx.fillStyle='white';
         ctx.fillRect( px-2, py-2, 4, 4);
 
@@ -411,7 +432,7 @@ class view_freq_iq extends view_zoom_pan {
         ctx.fillText( 'abs: '+(Math.sqrt(vi*vi+vq*vq)).toFixed(4), x+8,y+4+5*fs);
         if (s<100) return;
 
-        drawArrow(ctx, x+sx/2, y+sy/2, px, py, "signal", { startArrow: false, strokeStyle: colmap, fillStyle:col, textOffset: fs_s, font: fs_s+"px Verdana"});
+        drawArrow(ctx, x+sx/2, cy, px, py, "signal", { startArrow: false, strokeStyle: colmap, fillStyle:col, textOffset: fs_s, font: fs_s+"px Verdana"});
     }
 
 };

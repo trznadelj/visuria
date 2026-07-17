@@ -110,7 +110,7 @@
       <select name="render_mode" id="render_mode" onclick="app_reload_color()">
          <option value="0">amplitude</option> 
          <option value="1">angle</option>
-         <option value="2">amplitude + chan</option>
+         <option value="2">rbmap</option>
          <option value="3">Channel full</option>
          <option value="4">Resource grid</option>
          <option value="5">White</option>
@@ -214,7 +214,7 @@
     }
 
   canvas_size_x = document.getElementById('fs_main_canvas').width  =    window.innerWidth-4;
-  canvas_size_y = document.getElementById('fs_main_canvas').height =    window.innerHeight-26;
+  canvas_size_y = document.getElementById('fs_main_canvas').height =    window.innerHeight-30;
 
   function app_reload_color() 
   {

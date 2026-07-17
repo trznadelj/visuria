@@ -90,7 +90,8 @@ function genCfgTable(prefix, names, values) {
     ret = "<table>";
 
     for (let i = 0; i < names.length; i++) {
-        ret += "<TR><TD>" + names[i] + "</TD><TD><input type='text' id='" + prefix + "__" + names[i] + "' placeholder='0' value='" +
+        ret += "<TR><TD>" + names[i] + "</TD>"+
+           "<TD><input type='text' id='" + prefix + "__" + names[i] + "' placeholder='0' value='" +
             val2html(values[i]) +
             "'></TD></TR>\n";
     }
