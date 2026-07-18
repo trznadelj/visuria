@@ -75,8 +75,18 @@
   <div id="select_dialog" title="Select dialog">
     <input type='text' id='select_dialog__filter' placeholder='sc<12 && sym_in_slot==1' value=''>
     <input type="button" value="select" onclick="app.curr_view.onSelect(document.getElementById('select_dialog__filter').value ); app.curr_view.onRenderForced();">
+
+      Example: <BR> &nbsp; (rb<2) || (amp>0.5) <HR>
+      Available: <BR> &nbsp;  sc, sym, sym_in_slot, chan, slot, i, q, amp, rb <HR>
+      Set to 1 to select everything.
   </div>
-  <div id="help_dialog" title="Help dialog" hidden>  </div>
+  <div id="help_dialog" title="Help dialog">  
+    No help available yet. <BR>
+
+    Source code available at:<HR>
+    <a href="https://github.com/trznadelj/visuria">https://github.com/trznadelj/visuria</a>
+    <HR>
+  </div>
 
   <table border="1" cellpadding="0" cellspacing="0" id="table_main" width=100% height=100%>
    <tbody>
@@ -188,7 +198,7 @@
        $( "#debug_dialog" ).dialog( { width: 450, autoOpen: false } );
        $( "#floating_dialog" ).dialog( { width: 300, autoOpen: false } );
        $( "#select_dialog" ).dialog( { width: 300, autoOpen: false } );
-
+      $( "#help_dialog" ).dialog( { width: 350, autoOpen: false } );
        
 
        document.getElementById('console_eval').addEventListener('click', () => evaluateCode());
@@ -207,6 +217,7 @@
       $('#open_console_dialog').click(function()     { $( "#console_dialog").dialog     ( "open" );    });
       $('#open_file_dialog').click(function()        { $( "#file_dialog"   ).dialog     ( "open" );    });
       $('#open_select_dialog').click(function()      { $( "#select_dialog" ).dialog     ( "open" );    });
+      $('#open_help_dialog').click(function()        { $( "#help_dialog" ).dialog     ( "open" );    });
       $('#file_dialog__load').click(function()       { app_onFileLoadClicked(); $( "#file_dialog"   ).dialog     ( "close" );     });
 
       document.getElementById('file_dialog__cfg_p').innerHTML = 

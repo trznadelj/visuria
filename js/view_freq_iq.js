@@ -303,6 +303,11 @@ class view_freq_iq extends view_zoom_pan {
             let sym= (n/this.num_sc)|0;
             let sym_in_slot = sym%14;
             let chan = this.chan_map[n];
+            let slot = (sym/20)|0;
+            let i = this.data[0][n];
+            let q = this.data[1][n];
+            let amp = Math.sqrt(i*i+q*q);
+            let rb = (sc/12) | 0;
             if (eval(criterion))
                 this.flag_map[n]|=1;
             else
