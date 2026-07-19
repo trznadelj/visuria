@@ -29,3 +29,10 @@ function nr_framing( out, u, is_ecp, sampling_rate )
 
     return out;
 }
+
+
+function nr_config()
+{
+    return [ ['skip_bytes','num_sc','fft_size','NR_u','cp_map','ant_interleaved'], 
+             [0,600,1024,1,[80,72,72,72,72,72,72],1] ]
+}

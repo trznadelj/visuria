@@ -48,7 +48,22 @@ function handleFiles(fileListObj)
 
     if (files.length == 1) {
         g_file = files[0];
-        app_openLoadDialog(g_file);
+        var type = app_guessFileTypeByName(g_file.name);
+        if (type=='js')
+        {           
+            document.getElementById('file_dialog__file_type').value = type;         
+
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const content = evt.target.result;
+                const dataView = new DataView(content); 
+                app_onFileLoad_js( dataView);
+            };
+            reader.readAsArrayBuffer(g_file);
+
+        }
+        else
+            app_openLoadDialog(g_file);
     }
     else 
     {

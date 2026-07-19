@@ -269,7 +269,7 @@ class view_freq_iq extends view_zoom_pan {
                 if (!this.flag_map[idx]) continue;
                 let x = (vi[idx] * sx + x0)|0;
                 if ((x<0)||(x>=width-1)) continue;
-                let y = (vq[idx] * sy + y0)|0;
+                let y = (-vq[idx] * sy + y0)|0;
                 if ((y<0)||(y>=height-1)) continue;
                 let offset = (x+width*y)<<2;
                 let color = this.idx2Rgb( idx, this.chan_map[idx] );

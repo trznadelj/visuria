@@ -100,6 +100,39 @@ function genCfgTable(prefix, names, values) {
 }
 
 
+function getCfgTable( prefix, names, values )
+{
+    let ret = {};
+    for( let i=0; i<names.length; i++)
+    {
+        let x = document.getElementById( prefix+'__'+names[i]).value;
+        if (Array.isArray(values[i]))
+            x = JSON.parse(x);
+        else   
+            x = Number(x);
+
+        ret[names[i]] = x;
+    }
+    return ret;
+}
+
+function setCfgTable( prefix, cfg )
+{
+    let ret = {};
+
+    Object.keys(cfg).forEach(key => {
+        try {
+            document.getElementById( prefix+'__'+key).value = cfg[key];
+        }
+        catch(e)
+        {
+            debug("setCfgTable error: "+e);
+        }
+
+    });
+    return ret;    
+}
+
 /**
  * Draw an arrow with an optional arrowhead at either end and a rotated label.
  *

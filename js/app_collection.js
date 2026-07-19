@@ -158,13 +158,8 @@ function app_onFileLoad( file, content, fileType )
     timestamp( "File loaded");
     app_addToCollection( app.current_data, fileType, file.name );
 
-    let config = {
-        num_sc: Number(document.getElementById('file_dialog__num_sc').value),
-        fft_size: Number(document.getElementById('file_dialog__fft_size').value),
-        u: Number(document.getElementById('file_dialog__NR_u').value),
-        cp_map: JSON.parse(document.getElementById('file_dialog__cp_map').value),
-        ant_interleaved: JSON.parse(document.getElementById('file_dialog__ant_interleaved').value)
-    };
+    let cfg = nr_config();
+    let config = getCfgTable('file_dialog',cfg[0],cfg[1]);
 
     switch(fileType) 
     {
