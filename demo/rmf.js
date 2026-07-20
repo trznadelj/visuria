@@ -9,7 +9,8 @@ getFile('demo/rmf.bin', tmp_handler);
 let src = ` 
 const iq = getTimeIq();
 const phaseDiff = v_angle( v_conjdiff(iq) );
-const decimation = 6, alpha = 0.04 /* Low-pass coefficient */, output=[], filtered=0; 
+const decimation = 6, alpha = 0.04 /* LP coefficient */, output=[];
+let filtered=0; 
 for (let i = 0; i < phaseDiff.length; i++) {
     filtered += alpha * (phaseDiff[i] - filtered); // 1st-order IIR LPF
     if (i % decimation === 0) 
