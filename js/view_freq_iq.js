@@ -335,7 +335,7 @@ class view_freq_iq extends view_zoom_pan {
             let y0 = (sc) * sy + this.y0;
             let y = (sc+6) * sy + this.y0;
             if (y < 0) continue;
-            if (y > this.height) break;
+            if (y > this.height+12*sy) break;
             rb = sc/12;
             if (sy>10)  
                 ctx.fillText( sc%12, xpos+16, y0+sy/2+4 );
@@ -369,23 +369,60 @@ class view_freq_iq extends view_zoom_pan {
  
         // Draw time ruler on the bottom
      
-        ctx.fillStyle = 'rgba(0.2,0.2,0.2,0.5)';
+        ctx.fillStyle = 'rgba(20,20,20,0.5)';
         ctx.fillRect( 0, ypos, this.width, 30 );
         ctx.fillStyle = 'white';
         ctx.strokeStyle = 'white';
+        const sym_in_slot=14;
+        const slots_in_frame = 20;
         for( let sym=0; sym < this.num_symbols; sym++ ) {
             let x0 = (sym) * sx + this.x0;
             let x = (sym+1) * sx + this.x0;
             if (x < 0) continue;
             if (x > this.width) break;
             if ((sx<10) && (sym%14)) continue;
-            if (sx>10) ctx.fillText( sym%14, (x0+x)/2, ypos+12 );
-            if (!(sym%14))
-                ctx.fillText( sym/14, (x0+x)/2, ypos+28 );
+            if (sx>14) 
+            {
+                if (sx>100) 
+                    ctx.fillText( "Symbol:"+(sym%sym_in_slot), (x0+x)/2-50, ypos+12 );
+                else
+                    ctx.fillText( sym%sym_in_slot, (x0+x)/2, ypos+12 );
+            }
+            
+            if ((!(sym%sym_in_slot)) && (sx>1))
+            {
+                let slot = ((sym/sym_in_slot)%slots_in_frame);    
+                let xs = (sym+sym_in_slot) * sx + this.x0;
+                if (slot&1)
+                {
+                    ctx.fillStyle = 'rgba(64,64,64,0.5)';
+                    ctx.fillRect( x0, ypos+18, xs-x0, 12 );
+                    ctx.fillStyle = 'white';
+                }
+
+                if (sx>5) 
+                    ctx.fillText( "Slot:"+slot, (xs+x)/2-40, ypos+28 );
+                else
+                    ctx.fillText( slot, (xs+x)/2-10, ypos+28 );
+            }
+
+            if ((!(sym%(sym_in_slot*slots_in_frame))))
+            {
+                let frame = sym/(sym_in_slot*slots_in_frame);
+                let xf = (sym+sym_in_slot*slots_in_frame) * sx + this.x0;
+                if (frame&1)
+                {
+                    ctx.fillStyle = 'rgba(64,64,64,0.5)';
+                    ctx.fillRect( x0, ypos+32, xf-x0, 12 );
+                    ctx.fillStyle = 'white';
+                }
+
+                ctx.fillText( "Frame:"+frame, (x+xf)/2-40, ypos+42 );
+            }
         }
 
         if (this.height-ypos>30)
-            drawArrow( ctx, this.x0, ypos+50, this.sx * this.width+this.x0, ypos+50, " Time:" + this.num_symbols +" symbols" )
+            drawArrow( ctx, this.x0, ypos+70, this.sx * this.width+this.x0, ypos+70, " Time:" + this.num_symbols +" symbols" )
     }
 
 
