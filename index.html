@@ -92,7 +92,6 @@
    <tbody>
    <tr bgcolor="#e0e0e0" height=100%>
     <td bgcolor="#000" style="padding: 0px;">
-  
 
      <!-- Views -->
      <div id="dropzone" >     <font style="color: #3080ff"><center>
@@ -108,15 +107,14 @@
         <LI> textual </LI>
         <LI> 8bit IQ binary (rtlsdr) </LI>
         </font>
+        
         </td></tr></table>
       </font>
     </div>
+     <div id="demo"> <center><font style="color: #5b5b5b"> Example FM capture: <a onclick="runScript('demo/rmf.js');"><B>rmf</B></a> </font> </center></div>
      <div id="fs_table"> </div>
      <div id="fs_main" hidden> <canvas id="fs_main_canvas" width="640px" height="480px"></canvas>  </div>
      <div id="modal" title="Modal dialog" hidden><p id="modal_p"></p></div>
-
-
-
     </td>
     </tr>
     <tr bgcolor="#606060"><td>
@@ -170,6 +168,7 @@
   <script src="js/file_bin_tensor.js"></script>
   <script src="js/file_js.js"></script>  
 
+  <script src="js/math.js"></script>
   <script src="js/math_fft.js"></script>
 
   <!-- views -->

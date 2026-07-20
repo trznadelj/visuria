@@ -57,6 +57,7 @@ function app_setView( view )
         case 'fft':
             break;
     }
+    document.getElementById('demo').hidden = true;
 }
 
 function time_to_freq( time_data, sym_starts, fft_size, num_sc )
@@ -211,7 +212,7 @@ function app_onFileLoad( file, content, fileType )
     }
 
     timestamp( "File processing ended.")
-
+    $('#demo').hide();
     $('#dropzone').hide();
     $('#fs_main').show();
 }

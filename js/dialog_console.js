@@ -145,3 +145,8 @@ function xygraph(data, opts)
     view.toHtml = function () { return ''; };
     return view;
 }
+
+function getTimeIq()
+{    
+    return app.view_time.data;
+}

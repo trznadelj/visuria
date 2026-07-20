@@ -5,9 +5,9 @@ var app = {
 };
 
 
-function app_init() {
+function app_init() 
+{
     let app_canvas_context = document.getElementById("fs_main_canvas").getContext("2d");
-
 
     app_canvas_context.canvas.addEventListener('mousemove', (event) => app.curr_view.onMouseMove(event));
     app_canvas_context.canvas.addEventListener('contextmenu', (event) => {
@@ -17,6 +17,9 @@ function app_init() {
     app_canvas_context.canvas.addEventListener('mousedown', (event) => app.curr_view.onMouseButtonDown(event));
     app_canvas_context.canvas.addEventListener('wheel', (event) => app.curr_view.onMouseWheel(event));
     app_canvas_context.canvas.addEventListener('mouseup', (event) => app.curr_view.onMouseButtonUp(event));
+
+    if (!isServer())
+        document.getElementById('demo').hidden = true;
 }
 
 

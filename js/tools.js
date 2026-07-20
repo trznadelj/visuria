@@ -233,3 +233,133 @@ function drawArrow(ctx, x1, y1, x2, y2, text = "", options = {}) {
 }
 
 
+function download(filename, text) {
+    const blob = new Blob([text], {
+        type: "text/plain;charset=utf-8"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = filename;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+}
+
+function getFile(filename, handler, magic) 
+{
+    fetch(filename)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to fetch "${filename}": ${response.status} ${response.statusText}`);
+            }
+            return response.arrayBuffer();
+        })
+        .then(buffer => {
+            handler(filename, magic, buffer);
+        })
+        .catch(error => {
+            console.error(error);
+            handler(filename, magic, null);
+        });
+}
+
+function isServer() {
+    return window.location.protocol !== "file:";
+}
+
+function runScriptHandler(filename, magic, content) {
+    if (!content) {
+        console.error(`Failed to load script: ${filename}`);
+        return;
+    }
+
+    try {
+        const source = new TextDecoder("utf-8").decode(content);
+
+        // Execute in global scope
+        (0, eval)(source);
+    } catch (e) {
+        console.error(`Error executing ${filename}:`, e);
+    }
+}
+
+function runScript( filename )
+{
+    debug("running script: "+filename);
+    getFile( filename, runScriptHandler, 0 );
+}
+
+let audioContext = null;
+let currentSource = null;
+
+function play(data, sampleRate) {
+    if (!data || !data.length) {
+        return;
+    }
+
+    if (!Number.isFinite(sampleRate) || sampleRate <= 0) {
+        throw new Error("Invalid sample rate");
+    }
+
+    audioContext ??= new AudioContext();
+
+    // Stop previous playback
+    if (currentSource) {
+        try {
+            currentSource.stop();
+        } catch (_) {}
+
+        currentSource.disconnect();
+        currentSource = null;
+    }
+
+    /*
+     * Accept:
+     *   Float32Array
+     *   Float64Array
+     *   regular Array
+     *
+     * Samples are expected to be normalized to -1.0 ... +1.0.
+     */
+    const buffer = audioContext.createBuffer(
+        1,              // mono
+        data.length,
+        sampleRate
+    );
+
+    const channel = buffer.getChannelData(0);
+
+    if (data instanceof Float32Array) {
+        channel.set(data);
+    } else {
+        for (let i = 0; i < data.length; i++) {
+            channel[i] = Math.max(-1, Math.min(1, data[i]));
+        }
+    }
+
+    const source = audioContext.createBufferSource();
+
+    source.buffer = buffer;
+    source.connect(audioContext.destination);
+
+    source.onended = () => {
+        if (currentSource === source) {
+            currentSource = null;
+        }
+
+        source.disconnect();
+    };
+
+    currentSource = source;
+
+    // Needed when AudioContext was suspended by browser policy
+    audioContext.resume().then(() => {
+        source.start();
+    });
+}
