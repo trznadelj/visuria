@@ -1,4 +1,4 @@
-unction v_minmax_amp(data) {
+function v_minmax_amp(data) {
     let min = 1e30, max = -1e30;
     for (let k = 0; k < data[0].length; k++) {
         let v = Math.sqrt(data[0][k] * data[0][k] + data[1][k] * data[1][k]);
