@@ -32,6 +32,9 @@ function app_guessFileTypeByName( name )
 
 function app_setView( view )
 {
+    document.getElementById('button_iq_view').className     = (view=='iq')?'button_page':'none';
+    document.getElementById('button_time_view').className   = (view=='time')?'button_page':'none';
+    document.getElementById('button_freq_view').className   = (view=='freq')?'button_page':'none';
     switch( view )
     {
         case 'time':
@@ -191,17 +194,18 @@ function app_onFileLoad( file, content, fileType )
             app.curr_view = app.view_freq = app_view_freq_iq = new view_freq_iq(f);
             app.curr_view.setConfig( config );
             app.curr_view.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
-            app.curr_view.onRender();
+            //app.curr_view.onRender();
             app.curr_view.chan_map = app_genRbmap( config, app.curr_view.chan_map );
+            app_setView('freq');
             break;
 
         case 'freqtxt':
         case 'freqiq':
             app.curr_view = app.view_freq = app_view_freq_iq = new view_freq_iq(app.current_data);
             app.curr_view.setConfig( config );
-            app.curr_view.setContext( document.getElementById("fs_main_canvas").getContext("2d") );
-            app.curr_view.onRender();
+            app.curr_view.setContext( document.getElementById("fs_main_canvas").getContext("2d") );            
             app.curr_view.chan_map = app_genRbmap( config, app.curr_view.chan_map );
+            app_setView('freq');
             break;
 
         case 'csv':

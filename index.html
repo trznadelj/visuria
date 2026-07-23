@@ -44,6 +44,16 @@
             touch-action: none;
         }
 
+    .button_page {
+      padding: 0px;
+      border: none;
+      padding: 0px 10px;
+      height: 20px;
+      background-color: black;
+      vertical-align: top;
+      color: white;
+    }
+
   </style>
   <!--    <link rel="stylesheet" href="ext/jquery-ui.min.css">-->
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
@@ -96,7 +106,7 @@
   <table border="1" cellpadding="0" cellspacing="0" id="table_main" width=100% height=100%>
    <tbody>
    <tr bgcolor="#e0e0e0" height=100%>
-    <td bgcolor="#000" style="padding: 0px;" colspan="2">
+    <td bgcolor="#000" style="padding: 0px;" colspan="2>
 
      <!-- Views -->
      <div id="dropzone" >     <font style="color: #3080ff"><center>
@@ -130,9 +140,9 @@
       <input type="button" value="help" id="open_help_dialog" title="Help dialog.">
       &nbsp; 
       Views:
-      <input type="button" value="time" onclick="app_setView('time')">
-      <input type="button" value="freq" onclick="app_setView('freq')">  
-      <input type="button" value="iq"   onclick="app_setView('iq')"> 
+      <input type="button" value="time" onclick="app_setView('time')" id="button_time_view">
+      <input type="button" value="freq" onclick="app_setView('freq')" id="button_freq_view">  
+      <input type="button" value="iq"   onclick="app_setView('iq')" id="button_iq_view"> 
       &nbsp; 
       Color mode:
       <select name="render_mode" id="render_mode" onclick="app_reload_color()">
