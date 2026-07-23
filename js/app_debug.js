@@ -15,3 +15,8 @@ function timestart()
 {
     timestamp_startTime = new Date().getTime();
 }
+
+function timelaps( txt )
+{
+    document.getElementById('status_text_id').innerHTML=txt +":"+ (new Date().getTime() - timestamp_startTime) + "[ms]";    
+}

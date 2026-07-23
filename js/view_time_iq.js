@@ -30,6 +30,7 @@ class view_time_iq extends view_zoom_pan {
     }
 
     onRender() {
+        timestart();
         let ctx = this.context;
         ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, this.width, this.height);
@@ -87,6 +88,7 @@ class view_time_iq extends view_zoom_pan {
         }
 
         this.drawRulers();
+        timelaps("Time");
     };
 
     drawRulers() {

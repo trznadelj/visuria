@@ -29,3 +29,36 @@ function gold31( c_init, len )
 
     return ret;
 }
+
+
+function crc_polynomial( poly_name )
+/* Ref: 38.212, 5.1. Names: CRC6...CRC24C */
+{
+    switch(poly_name)
+    {
+                             //  |       .       |       .       |       .       |
+        case 'CRC6':   return [                                     1,1,0,0,0,0,1 ]; 
+        case 'CRC8':   return [                                 1,1,0,0,1,1,0,1,1 ];
+        case 'CRC11':  return [                           1,1,1,0,0,0,1,0,0,0,0,1 ];
+        case 'CRC16':  return [                 1,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1 ];
+        case 'CRC24A': return [ 1,1,0,0,0,0,1,1,0,0,1,0,0,1,1,0,0,1,1,1,1,1,0,1,1 ]; 
+        case 'CRC24B': return [ 1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,1 ]; 
+        case 'CRC24C': return [ 1,1,0,1,1,0,0,1,0,1,0,1,1,0,0,0,1,0,0,0,1,0,1,1,1 ]; 
+        default:       throw("Unknown poly name: "+poly_name);
+    }
+    
+    return 0;
+}
+
+function crc( bits, poly )
+/* CRC from definition */
+{
+    let tmp = bits.concat( zeros( poly.length ) );
+
+    for( let i=0; i<bits.length; i++) 
+        if ( tmp[i]!==0 ) 
+            for( let j=0; j<poly.length; j++)
+                tmp[i+j] ^= poly[j];
+
+    return tmp.slice( bits.length, tmp.length-1 );
+}

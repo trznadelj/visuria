@@ -182,6 +182,8 @@ class view_freq_iq extends view_zoom_pan {
     onRenderRegrid( ) {
         if (!this.context || !this.width) return;      
         if( this.num_symbols <= 0 || this.num_sc <= 0 ) return;
+
+        timestart();
         let ctx = this.context;
 
         // Exit early if config not ready yet.
@@ -239,12 +241,14 @@ class view_freq_iq extends view_zoom_pan {
         this.drawRulers();
         ctx.strokeStyle = 'yellow';
         ctx.fillStyle = 'green';
+        timelaps("Regrid");
     }
     
     onRenderIq() 
     {
         if (!this.context || !this.width) return;      
         if( this.num_symbols <= 0 || this.num_sc <= 0 ) return;
+        timestart();
         let ctx = this.context;
 
         // Exit early if config not ready yet.
@@ -292,6 +296,7 @@ class view_freq_iq extends view_zoom_pan {
         cache_canvas.getContext('2d').putImageData(new ImageData( cache_bitmap, width, height), 0, 0);
 
         this.context.drawImage( cache_canvas,  0,0,width,height);
+        timelaps("IQ");
     }
 
 

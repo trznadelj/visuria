@@ -1,22 +1,37 @@
 var app = {
     current_data: 0,
+    view_name: "",
     collection: [],
     fileLoaders: {}
 };
 
 
+// ── app_init ───────────────────────────────────────────────────
+
 function app_init() 
 {
     let app_canvas_context = document.getElementById("fs_main_canvas").getContext("2d");
 
-    app_canvas_context.canvas.addEventListener('mousemove', (event) => app.curr_view.onMouseMove(event));
-    app_canvas_context.canvas.addEventListener('contextmenu', (event) => {
+    const canvas = app_canvas_context.canvas;
+
+    // Context menu (right-click / long-press)
+    canvas.addEventListener('contextmenu', (event) => {
         event.preventDefault();
-        app.curr_view.onRightClick(event);
+        if (app.curr_view) app.curr_view.onRightClick(event);
     });
-    app_canvas_context.canvas.addEventListener('mousedown', (event) => app.curr_view.onMouseButtonDown(event));
-    app_canvas_context.canvas.addEventListener('wheel', (event) => app.curr_view.onMouseWheel(event));
-    app_canvas_context.canvas.addEventListener('mouseup', (event) => app.curr_view.onMouseButtonUp(event));
+
+    // Mouse wheel zoom
+    canvas.addEventListener('wheel', (event) => {
+        if (app.curr_view) app.curr_view.onMouseWheel(event);
+    });
+
+    // Pointer Events — unified mouse + touch + pen via app_input_touch.js.
+    // { passive:false } required for preventDefault() on mobile Chrome/Safari.
+    // Does NOT fire for synthetic mouse events from touch, so no duplicates.
+    canvas.addEventListener('pointerdown',  (event) => app_onPointerDown(event),  { passive: false });
+    canvas.addEventListener('pointermove',  (event) => app_onPointerMove(event),  { passive: false });
+    canvas.addEventListener('pointerup',    (event) => app_onPointerUp(event),    { passive: false });
+    canvas.addEventListener('pointercancel',(event) => app_onPointerCancel(event),{ passive: false });
 
     if (!isServer())
         document.getElementById('demo').hidden = true;
@@ -72,7 +87,8 @@ function app_onKeyUp(key, ctrl, alt)
 }
 
 
-function js_onKeyDownHnd(e) {
+function app_onKeyDownHnd(e) 
+{
     key = -1;
 
     switch (emod) {
@@ -97,7 +113,9 @@ function js_onKeyDownHnd(e) {
     return app_onKeyDown(key, e.ctrlKey, e.altKey);
 }
 
-function js_onKeyUpHnd(e) {
+
+function app_onKeyUpHnd(e) 
+{
     key = -1;
 
     switch (emod) {
@@ -122,7 +140,7 @@ function js_onKeyUpHnd(e) {
     return app_onKeyUp(key, e.ctrlKey, e.altKey);
 }
 
-function js_InitKeyboard(e) {
+function app_InitKeyboard(e) {
     /*get the event model*/
     emod = (e) ? (e.eventPhase) ? "W3C" : "NN4" : (window.event) ? "IE4+" : "unknown";
 
@@ -130,13 +148,13 @@ function js_InitKeyboard(e) {
         document.captureEvents(Event.KEYDOWN);
     }
 
-    document.onkeydown = js_onKeyDownHnd;
-    document.onkeyup = js_onKeyUpHnd;
+    document.onkeydown = app_onKeyDownHnd;
+    document.onkeyup = app_onKeyUpHnd;
 
     return true;
 }
 
 function app_windowOnloadHnd(e) {
-    js_InitKeyboard(e);
+    app_InitKeyboard(e);
     app_init();
 }

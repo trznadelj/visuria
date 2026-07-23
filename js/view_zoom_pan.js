@@ -16,15 +16,6 @@ class view_zoom_pan {
     setContext( context ) {
         this.context = context;
         this.onResize();
-/*        
-        this.context.canvas.addEventListener('mousemove', (event) => this.onMouseMove(event));
-        this.context.canvas.addEventListener('contextmenu', (event) => {
-            event.preventDefault();
-            this.onRightClick(event);
-        });
-        this.context.canvas.addEventListener('mousedown', (event) => this.onMouseButtonDown(event));
-        this.context.canvas.addEventListener('wheel', (event) => this.onMouseWheel(event));
-        this.context.canvas.addEventListener('mouseup', (event) => this.onMouseButtonUp(event));*/
     };
 
     onResize() {
@@ -49,6 +40,8 @@ class view_zoom_pan {
 
     onMouseButtonDown( event ) {
         this.mouse_button = 1;
+        this.mouse_x = event.offsetX;
+        this.mouse_y = event.offsetY;
     };
 
     onMouseButtonUp( event ) {

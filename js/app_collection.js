@@ -56,7 +56,11 @@ function app_setView( view )
 
         case 'fft':
             break;
+
+        default:
+            return;
     }
+    app.view_name = view;
     document.getElementById('demo').hidden = true;
 }
 
@@ -123,6 +127,17 @@ function app_packet_dissector( view_pcap )
 
         ret.push(pkt_info);
     }
+    return ret;
+}
+
+function app_getViewSetterScript()
+{
+    var ret = "app_setView('"+app.view_name+"'); "+
+              "app.curr_view.x0 = "+app.curr_view.x0+"; "+
+              "app.curr_view.y0 = "+app.curr_view.y0+"; "+
+              "app.curr_view.sx = "+app.curr_view.sx+"; "+
+              "app.curr_view.sy = "+app.curr_view.sy+"; ";
+
     return ret;
 }
 

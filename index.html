@@ -39,6 +39,11 @@
             box-sizing: border-box;
         }
 
+        /* Prevent browser default touch gestures on the main canvas */
+        #fs_main_canvas {
+            touch-action: none;
+        }
+
   </style>
   <!--    <link rel="stylesheet" href="ext/jquery-ui.min.css">-->
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
@@ -91,7 +96,7 @@
   <table border="1" cellpadding="0" cellspacing="0" id="table_main" width=100% height=100%>
    <tbody>
    <tr bgcolor="#e0e0e0" height=100%>
-    <td bgcolor="#000" style="padding: 0px;">
+    <td bgcolor="#000" style="padding: 0px;" colspan="2">
 
      <!-- Views -->
      <div id="dropzone" >     <font style="color: #3080ff"><center>
@@ -138,7 +143,11 @@
          <option value="4">Resource grid</option>
          <option value="5">White</option>
       </select>
-    </td></tr>
+    </td>
+    <td id="status_text_id">
+
+    </td>
+  </tr>
   </tbody>
   </table>
 
@@ -152,6 +161,7 @@
 
   <!-- APP -->
   <script src="js/app.js"></script>
+  <script src="js/app_input_touch.js"></script>
   <script src="js/app_debug.js"></script>
   <script src="js/app_dragdrop.js"></script>
   <script src="js/app_collection.js"></script>
