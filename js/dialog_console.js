@@ -150,3 +150,8 @@ function getTimeIq()
 {    
     return app.view_time.data;
 }
+
+function selected()
+{
+    return this.curr_view.getSelected();
+}

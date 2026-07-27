@@ -8,15 +8,18 @@ function v_minmax_amp(data) {
     return { min: min, max: max };
 }
 
-function v_ones(len, val = 1) {
+function v_ones(len, val = 1) 
+{
     return Array(len).fill(val);
 }
 
-function v_zeros(len) {
+function v_zeros(len) 
+{
     return Array(len).fill(0);
 }
 
-function v_slice(v, start, end) {
+function v_slice(v, start, end) 
+{
     if (v.length == 2) // iq vector
     {
         return [v[0].slice(start, end), v[1].slice(start, end)];
@@ -31,11 +34,13 @@ function v_diff(v) {
     return v;
 }
 
-function v_sort(v) {
+function v_sort(v) 
+{
     return v.sort((a, b) => a - b);
 }
 
-function v_uniq(v) {
+function v_uniq(v) 
+{
     var r = [];
     for (var i = 0; i < v.length - 1; i++)
         if (v[i] != v[i + 1]) r.push(v[i]);
@@ -78,6 +83,19 @@ function v_conjdiff(v)
     return [outRe, outIm];
 }
 
+function v_dotmul_conj(v1, v2 )
+{
+    let len = v1[0].length;
+    if (v2[0].length!=len)
+        throw "Bad lengths";
+    let ret = [[],[]];
+    for( let i=0; i<len; i++)
+    {
+        ret[0].push( v1[0][i]*v2[0][i]-v1[1][i]*v2[1][i] );
+        ret[1].push( v1[0][i]*v2[1][i]+v1[1][i]*v2[0][i] );
+    }
+    return ret;
+}
 
 function v_angle(v)
 // get vector (array size 2 x num_elements)

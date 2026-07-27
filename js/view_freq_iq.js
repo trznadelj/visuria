@@ -320,6 +320,18 @@ class view_freq_iq extends view_zoom_pan {
         }
     }
 
+    getSelected()
+    {
+        let v_i=[], v_q=[];
+        for( let i=0; i<this.flag_map.length; i++)
+            if (this.flag_map[i]&1)
+            {
+                v_i.push( this.data[0][i] );
+                v_q.push( this.data[0][i] );
+            }
+        return [ v_i, v_q ];
+    }
+
     drawRulers() 
     {
         let ctx = this.context;
