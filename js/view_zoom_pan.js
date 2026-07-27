@@ -18,6 +18,17 @@ class view_zoom_pan {
         this.onResize();
     };
 
+    setCanvas( canvas ) {
+        this.canvas = canvas;
+        this.setContext(canvas.getContext('2d'));
+
+        canvas.addEventListener('mousedown',  e => this.onMouseButtonDown(e));
+        canvas.addEventListener('mousemove',  e => this.onMouseMove(e));
+        canvas.addEventListener('mouseup',    e => this.onMouseButtonUp(e));
+        canvas.addEventListener('wheel',      e => this.onMouseWheel(e));
+        canvas.addEventListener('contextmenu', e => { e.preventDefault(); this.onRightClick(e); });
+    };
+
     onResize() {
         if (!this.context || !this.context.canvas) return;
         this.width  = this.context.canvas.width;

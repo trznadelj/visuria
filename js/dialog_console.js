@@ -78,7 +78,7 @@ function console_add( txt )
 // Width/height default to 640x280.
 function console_add_canvas( w, h )
 {
-    w = w || 640;
+    w = w || 480;
     h = h || 280;
     const id = 'console_canvas_' + (_console_canvas_counter++);
     const html = '<canvas id="' + id + '" width="' + w + '" height="' + h
@@ -109,9 +109,10 @@ function plot(data, opts)
     const view = new view_plot(data);
     if (opts.mode !== undefined) view.setRenderMode(opts.mode);
 
-    const ctx = canvas.getContext('2d');
-    view.setContext(ctx);
-    view.onRender();
+    //const ctx = canvas.getContext('2d');
+    //view.setContext(ctx);
+    view.setCanvas( canvas );
+    //view.onRender();
 
     // Suppress console text output — the canvas is already in the DOM
     view.toHtml = function () { return ''; };
