@@ -109,10 +109,7 @@ function plot(data, opts)
     const view = new view_plot(data);
     if (opts.mode !== undefined) view.setRenderMode(opts.mode);
 
-    //const ctx = canvas.getContext('2d');
-    //view.setContext(ctx);
     view.setCanvas( canvas );
-    //view.onRender();
 
     // Suppress console text output — the canvas is already in the DOM
     view.toHtml = function () { return ''; };

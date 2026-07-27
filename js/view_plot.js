@@ -305,4 +305,15 @@ class view_plot extends view_zoom_pan {
 
         ctx.restore();
     }
+
+    onRightClick( event ) {
+        var floating  =document.getElementById('floating_dialog');
+        var ex = event.offsetX;
+        var ey = event.offsetY;
+        floating.style.top = ex;
+        floating.style.left= ey;
+        $('#floating_dialog').dialog('open');
+        let txt = "<button>close</button>";
+        document.getElementById('floating_p').innerHTML = txt;        
+    };    
 }
