@@ -53,7 +53,7 @@ function crc_polynomial( poly_name )
 function crc( bits, poly )
 /* CRC from definition */
 {
-    let tmp = bits.concat( zeros( poly.length ) );
+    let tmp = bits.concat( v_zeros( poly.length ) );
 
     for( let i=0; i<bits.length; i++) 
         if ( tmp[i]!==0 ) 
